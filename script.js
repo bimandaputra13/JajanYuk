@@ -14,7 +14,7 @@ const cartTotal = document.getElementById('cart-total');
 const menuItems = [
     {
         id: 1,
-        title: "Buah Potong",
+        title: "Semangka Nanas",
         category: "buah",
         price: 12,
         img: "./images/buahPotong.jpg",
@@ -22,13 +22,13 @@ const menuItems = [
     },
     {
         id: 2,
-        title: "Avocado Toast",
+        title: "Naga Melon",
         category: "buah",
-        price: 7.50,
-        img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-        desc: "Sourdough bread with smashed avocado, cherry tomatoes, and feta"
+        price: 12,
+        img: "./images/buahPotong2.jpg",
+        desc: "Aneka pilihan buah potong segar dengan variasi sesuai request"
     },
-    {
+    /*{
         id: 3,
         title: "Classic Burger",
         category: "lunch",
@@ -75,7 +75,7 @@ const menuItems = [
         price: 7.50,
         img: "https://images.unsplash.com/photo-1535920527002-b35e96722eb9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
         desc: "Classic Italian dessert with coffee-soaked ladyfingers"
-    }
+    }*/
 ];
 
 // Cart
