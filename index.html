@@ -36,11 +36,7 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-
-  /* LAYOUT */
   .app { display: flex; flex-direction: column; min-height: 100vh; max-width: 480px; margin: 0 auto; background: var(--surface); box-shadow: 0 0 40px rgba(0,0,0,0.08); }
-
-  /* HEADER */
   .header { background: var(--brand); padding: 20px 20px 16px; position: sticky; top: 0; z-index: 100; }
   .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
   .logo { display: flex; align-items: center; gap: 10px; }
@@ -48,47 +44,38 @@
   .logo-text { font-size: 20px; font-weight: 800; color: white; letter-spacing: -0.5px; }
   .logo-sub { font-size: 11px; color: rgba(255,255,255,0.7); font-weight: 500; }
   .header-date { font-size: 12px; color: rgba(255,255,255,0.75); font-weight: 500; background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 20px; }
-
-  /* NAV TABS */
+  .sync-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+  .sync-ok { background: rgba(34,197,94,0.25); color: #86EFAC; }
+  .sync-loading { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); }
+  .sync-err { background: rgba(239,68,68,0.25); color: #FCA5A5; }
   .nav { display: flex; gap: 4px; background: rgba(255,255,255,0.15); border-radius: 10px; padding: 4px; }
   .nav-btn { flex: 1; padding: 8px 4px; border: none; background: none; color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 7px; transition: all 0.2s; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 2px; }
   .nav-btn.active { background: white; color: var(--brand); }
   .nav-btn .nav-icon { font-size: 16px; }
-
-  /* CONTENT */
   .content { flex: 1; padding: 16px; }
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
-
-  /* SECTION TITLE */
   .section-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
   .section-title span { font-size: 13px; font-weight: 500; color: var(--text2); }
-
-  /* CARD */
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
   .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-
-  /* FORM INPUT */
   .form-group { margin-bottom: 12px; }
   .form-label { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
   .form-input, .form-select { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: inherit; color: var(--text); background: var(--surface); transition: border 0.2s; outline: none; }
   .form-input:focus, .form-select:focus { border-color: var(--brand); }
   .form-row { display: flex; gap: 8px; }
   .form-row .form-group { flex: 1; }
-
-  /* BUTTONS */
   .btn { padding: 11px 18px; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .btn-primary { background: var(--brand); color: white; width: 100%; justify-content: center; }
-  .btn-primary:hover { background: var(--brand-dark); }
-  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:hover:not(:disabled) { background: var(--brand-dark); }
+  .btn-primary:active:not(:disabled) { transform: scale(0.98); }
   .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
   .btn-ghost { background: none; border: 1.5px solid var(--border); color: var(--text2); }
   .btn-ghost:hover { border-color: var(--text2); }
   .btn-danger { background: var(--red-light); color: var(--red); }
   .btn-success { background: var(--green-light); color: var(--green-dark); }
   .btn-warning { background: var(--amber-light); color: #92400E; }
-
-  /* ORDER LIST */
   .order-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; transition: background 0.2s; }
   .order-item.paid { background: var(--green-light); border-color: #86EFAC; }
   .order-item-info { flex: 1; min-width: 0; }
@@ -100,9 +87,6 @@
   .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; gap: 3px; }
   .badge-paid { background: var(--green-light); color: var(--green-dark); }
   .badge-unpaid { background: var(--amber-light); color: #92400E; }
-  .badge-deposit { background: var(--blue-light); color: #1D4ED8; }
-
-  /* SUMMARY CARDS */
   .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
   .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
   .stat-label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
@@ -111,19 +95,13 @@
   .stat-value.orange { color: var(--brand); }
   .stat-value.blue { color: var(--blue); }
   .stat-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
-
-  /* PERIOD TABS */
   .period-tabs { display: flex; gap: 4px; background: var(--surface2); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 16px; }
   .period-tab { flex: 1; padding: 8px 4px; border: none; background: none; font-size: 13px; font-weight: 600; color: var(--text2); cursor: pointer; border-radius: 6px; font-family: inherit; transition: all 0.2s; }
   .period-tab.active { background: white; color: var(--brand); box-shadow: var(--shadow); }
-
-  /* DEPOSIT */
   .deposit-item { background: var(--blue-light); border: 1px solid #BFDBFE; border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
   .deposit-name { font-size: 14px; font-weight: 600; color: var(--text); }
   .deposit-amount { font-size: 15px; font-weight: 700; color: var(--blue); font-family: 'DM Mono', monospace; }
   .deposit-date { font-size: 11px; color: var(--text3); margin-top: 2px; }
-
-  /* SHARE BILL */
   .buyer-select { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
   .buyer-option { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; }
   .buyer-option:hover { border-color: var(--brand); background: var(--brand-light); }
@@ -132,41 +110,26 @@
   .buyer-info { flex: 1; }
   .buyer-name { font-size: 14px; font-weight: 600; }
   .buyer-total { font-size: 12px; color: var(--text2); font-family: 'DM Mono', monospace; }
-
-  /* BILL PREVIEW */
   .bill-preview { background: var(--surface2); border-radius: var(--radius); padding: 16px; margin-top: 12px; font-family: 'DM Mono', monospace; font-size: 13px; }
   .bill-preview pre { white-space: pre-wrap; word-break: break-word; color: var(--text); line-height: 1.7; }
   .bill-actions { display: flex; gap: 8px; margin-top: 12px; }
   .bill-actions .btn { flex: 1; justify-content: center; }
-
-  /* EMPTY STATE */
   .empty-state { text-align: center; padding: 40px 20px; color: var(--text3); }
   .empty-icon { font-size: 40px; margin-bottom: 12px; }
   .empty-text { font-size: 14px; }
-
-  /* TOAST */
   .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text); color: white; padding: 12px 20px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: all 0.3s; pointer-events: none; max-width: 320px; text-align: center; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  /* DIVIDER */
   .divider { height: 1px; background: var(--border); margin: 16px 0; }
-
-  /* CHART BAR */
   .chart-bars { display: flex; align-items: flex-end; gap: 6px; height: 80px; margin-bottom: 4px; }
   .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
   .bar { width: 100%; background: var(--brand-light); border-radius: 4px 4px 0 0; transition: height 0.5s; min-height: 3px; }
   .bar.current { background: var(--brand); }
   .bar-label { font-size: 10px; color: var(--text3); font-weight: 600; }
-
-  /* SCROLLABLE */
   .orders-list { max-height: 55vh; overflow-y: auto; padding-right: 2px; }
   .orders-list::-webkit-scrollbar { width: 4px; }
   .orders-list::-webkit-scrollbar-track { background: transparent; }
   .orders-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
   .note-input { font-size: 12px; padding: 7px 10px; }
-
-  /* BULK PREVIEW */
   .bulk-row { display:flex; align-items:center; justify-content:space-between; padding:7px 10px; border-radius:var(--radius-sm); font-size:13px; margin-bottom:4px; gap:8px; }
   .bulk-row.valid { background:var(--green-light); border:1px solid #86EFAC; }
   .bulk-row.invalid { background:var(--red-light); border:1px solid #FCA5A5; }
@@ -176,8 +139,6 @@
   .bulk-row-price { font-family:'DM Mono',monospace; font-weight:700; font-size:13px; white-space:nowrap; }
   .bulk-row.valid .bulk-row-price { color:var(--green-dark); }
   .bulk-row.invalid .bulk-row-price { color:var(--red); }
-
-  /* QRIS */
   .qris-upload-zone { display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed var(--border); border-radius: var(--radius); padding: 32px 20px; cursor: pointer; transition: all 0.2s; text-align: center; background: var(--surface2); }
   .qris-upload-zone:hover { border-color: var(--brand); background: var(--brand-light); }
   .qris-upload-icon { font-size: 36px; margin-bottom: 10px; }
@@ -199,16 +160,28 @@
   .text-sm { font-size: 12px; }
   .text-muted { color: var(--text2); }
   .font-bold { font-weight: 700; }
-  .highlight { background: var(--brand-light); border-radius: 4px; padding: 2px 6px; color: var(--brand); font-weight: 700; }
-
   .filter-row { display: flex; gap: 6px; margin-bottom: 12px; align-items: center; }
   .filter-input { flex: 1; padding: 8px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; outline: none; color: var(--text); background: var(--surface); }
   .filter-input:focus { border-color: var(--brand); }
+
+  /* Loading overlay */
+  #loadingOverlay { position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(250,248,245,0.95);z-index:9998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px; }
+  #loadingOverlay .load-icon { font-size:48px;animation:pulse 1.2s infinite; }
+  #loadingOverlay .load-text { font-size:15px;font-weight:700;color:var(--text2); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .spin { display:inline-block; animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
-<div class="app">
 
+<!-- Loading Overlay -->
+<div id="loadingOverlay">
+  <div class="load-icon">🍜</div>
+  <div class="load-text">Menghubungkan ke Firestore…</div>
+</div>
+
+<div class="app">
   <!-- HEADER -->
   <div class="header">
     <div class="header-top">
@@ -219,24 +192,17 @@
           <div class="logo-sub">Pencatatan Penjualan</div>
         </div>
       </div>
-      <div class="header-date" id="headerDate"></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <div class="header-date" id="headerDate"></div>
+        <div class="sync-badge sync-loading" id="syncBadge">⏳ Menghubungkan</div>
+      </div>
     </div>
     <div class="nav">
-      <button class="nav-btn active" onclick="switchTab('pesanan')">
-        <span class="nav-icon">📋</span>Pesanan
-      </button>
-      <button class="nav-btn" onclick="switchTab('deposit')">
-        <span class="nav-icon">💰</span>Deposit
-      </button>
-      <button class="nav-btn" onclick="switchTab('ringkasan')">
-        <span class="nav-icon">📊</span>Ringkasan
-      </button>
-      <button class="nav-btn" onclick="switchTab('tagihan')">
-        <span class="nav-icon">🧾</span>Tagihan
-      </button>
-      <button class="nav-btn" onclick="switchTab('qris')">
-        <span class="nav-icon">📲</span>QRIS
-      </button>
+      <button class="nav-btn active" onclick="switchTab('pesanan')"><span class="nav-icon">📋</span>Pesanan</button>
+      <button class="nav-btn" onclick="switchTab('deposit')"><span class="nav-icon">💰</span>Deposit</button>
+      <button class="nav-btn" onclick="switchTab('ringkasan')"><span class="nav-icon">📊</span>Ringkasan</button>
+      <button class="nav-btn" onclick="switchTab('tagihan')"><span class="nav-icon">🧾</span>Tagihan</button>
+      <button class="nav-btn" onclick="switchTab('qris')"><span class="nav-icon">📲</span>QRIS</button>
     </div>
   </div>
 
@@ -245,8 +211,6 @@
 
     <!-- TAB: PESANAN -->
     <div class="tab-panel active" id="tab-pesanan">
-
-      <!-- Form Tambah Pesanan -->
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
           <div class="section-title" style="margin-bottom:0">➕ Tambah Pesanan</div>
@@ -282,7 +246,7 @@
             <label class="form-label">Catatan (opsional)</label>
             <input type="text" class="form-input note-input" id="inNote" placeholder="cth: pedas level 2, tanpa bawang...">
           </div>
-          <button class="btn btn-primary" onclick="addOrder()">➕ Tambah Pesanan</button>
+          <button class="btn btn-primary" id="btnAddOrder" onclick="addOrder()">➕ Tambah Pesanan</button>
         </div>
 
         <!-- Bulk Form -->
@@ -295,12 +259,11 @@
           <div id="bulkPreview" style="display:none;margin-bottom:12px"></div>
           <div style="display:flex;gap:8px">
             <button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center" onclick="previewBulk()">👁 Preview</button>
-            <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="submitBulk()">📥 Masukkan Semua</button>
+            <button class="btn btn-primary" style="flex:1;justify-content:center" id="btnSubmitBulk" onclick="submitBulk()">📥 Masukkan Semua</button>
           </div>
         </div>
       </div>
 
-      <!-- Filter & List Pesanan -->
       <div class="section-title">📋 Pesanan Hari Ini <span id="orderCount">0 item</span></div>
       <div class="filter-row">
         <input type="text" class="filter-input" id="filterBuyer" placeholder="🔍 Filter nama pembeli..." oninput="renderOrders()">
@@ -311,7 +274,6 @@
         </select>
       </div>
       <div class="orders-list" id="orderList"></div>
-
     </div>
 
     <!-- TAB: DEPOSIT -->
@@ -330,7 +292,7 @@
           <label class="form-label">Catatan</label>
           <input type="text" class="form-input note-input" id="depNote" placeholder="cth: titip buat besok">
         </div>
-        <button class="btn btn-primary" onclick="addDeposit()">💰 Simpan Deposit</button>
+        <button class="btn btn-primary" id="btnAddDeposit" onclick="addDeposit()">💰 Simpan Deposit</button>
       </div>
 
       <div class="section-title">💼 Daftar Deposit <span id="depCount"></span></div>
@@ -364,11 +326,9 @@
 
     <!-- TAB: QRIS -->
     <div class="tab-panel" id="tab-qris">
-
-      <!-- Upload QRIS -->
       <div class="card" id="qrisUploadCard">
         <div class="section-title">📲 Setup QRIS</div>
-        <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">Upload foto/gambar QRIS kamu sekali saja — akan tersimpan dan bisa ditampilkan kapan saja saat pembeli mau bayar.</p>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">Upload foto/gambar QRIS kamu sekali saja — akan tersimpan di cloud dan bisa ditampilkan kapan saja.</p>
         <label class="qris-upload-zone" id="qrisUploadZone" for="qrisFileInput">
           <div class="qris-upload-icon">📷</div>
           <div class="qris-upload-text">Ketuk untuk upload gambar QRIS</div>
@@ -377,39 +337,29 @@
         <input type="file" id="qrisFileInput" accept="image/*" style="display:none" onchange="handleQrisUpload(event)">
       </div>
 
-      <!-- QRIS Display -->
       <div id="qrisDisplay" style="display:none">
         <div class="card" style="padding:12px">
           <div class="flex justify-between items-center" style="margin-bottom:12px">
             <div class="section-title" style="margin-bottom:0">📲 QRIS Pembayaran</div>
             <button class="btn btn-sm btn-ghost" onclick="changeQris()">✏️ Ganti</button>
           </div>
-
-          <!-- Nominal dari pesanan -->
           <div style="background:var(--brand-light);border-radius:var(--radius-sm);padding:12px;margin-bottom:12px">
             <div style="font-size:11px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">💡 Nominal Pesanan Hari Ini</div>
             <div id="qrisNominalList" style="display:flex;flex-wrap:wrap;gap:6px"></div>
             <div style="margin-top:8px;font-size:12px;color:var(--text2)">Ketuk nominal untuk salin ke clipboard</div>
           </div>
-
-          <!-- QR Image -->
           <div class="qris-frame" id="qrisFrame" onclick="openQrisFullscreen()">
             <img id="qrisImg" src="" alt="QRIS" style="width:100%;border-radius:8px;display:block;cursor:pointer">
             <div class="qris-tap-hint">👆 Ketuk untuk perbesar fullscreen</div>
           </div>
-
-          <button class="btn btn-primary" style="margin-top:12px" onclick="openQrisFullscreen()">
-            🔍 Tampilkan Fullscreen
-          </button>
+          <button class="btn btn-primary" style="margin-top:12px" onclick="openQrisFullscreen()">🔍 Tampilkan Fullscreen</button>
         </div>
       </div>
 
-      <!-- Info kalau belum ada QRIS -->
       <div id="qrisEmptyHint" style="display:none" class="empty-state">
         <div class="empty-icon">📲</div>
         <div class="empty-text">Upload gambar QRIS kamu di atas untuk mulai</div>
       </div>
-
     </div>
 
   </div>
@@ -432,244 +382,207 @@
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<script>
-// ============================================================
-// DATA MANAGEMENT (localStorage)
-// ============================================================
-const DB_ORDERS = 'jajanyuk_orders';
-const DB_DEPOSITS = 'jajanyuk_deposits';
+<!-- ============================================================
+     FIREBASE SDK (ES Module via CDN)
+============================================================ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  getDoc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  query,
+  orderBy,
+  onSnapshot,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-function loadData(key) {
-  try { return JSON.parse(localStorage.getItem(key) || '[]'); }
-  catch { return []; }
-}
-function saveData(key, data) {
-  localStorage.setItem(key, JSON.stringify(data));
-}
+// ============================================================
+// FIREBASE CONFIG
+// ============================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyBKKsFvBJluM1PJfYCFsgR3ZfxF-JOKPKE",
+  authDomain: "jajanyuk-2c7d8.firebaseapp.com",
+  projectId: "jajanyuk-2c7d8",
+  storageBucket: "jajanyuk-2c7d8.firebasestorage.app",
+  messagingSenderId: "1085631977756",
+  appId: "1:1085631977756:web:fe71dd21ce51fb3f7502d9",
+  measurementId: "G-NQGH73XS1L"
+};
 
-let orders = loadData(DB_ORDERS);
-let deposits = loadData(DB_DEPOSITS);
-let currentPeriod = 'daily';
-let selectedBuyer = null;
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ============================================================
+// COLLECTIONS
+// Struktur Firestore:
+//   /orders/{orderId}   — dokumen pesanan
+//   /deposits/{depId}   — dokumen deposit
+//   /settings/qris      — dokumen QRIS (field: imageBase64)
+// ============================================================
+const ordersCol   = collection(db, 'orders');
+const depositsCol = collection(db, 'deposits');
+const settingsCol = collection(db, 'settings');
+
+// ============================================================
+// STATE
+// ============================================================
+let orders         = [];
+let deposits       = [];
+let currentPeriod  = 'daily';
+let selectedBuyer  = null;
+let qrisOverlayNominal = '';
 
 // ============================================================
 // HELPERS
 // ============================================================
-function rupiah(n) {
-  return 'Rp ' + Math.round(n).toLocaleString('id-ID');
-}
-function today() {
-  return new Date().toISOString().split('T')[0];
-}
-function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-}
+function rupiah(n) { return 'Rp ' + Math.round(n).toLocaleString('id-ID'); }
+function today()   { return new Date().toISOString().split('T')[0]; }
+function generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 5); }
+function initials(name) { return name.split(' ').map(w => w[0]).join('').toUpperCase().substr(0, 2); }
+
 function showToast(msg, icon = '✅') {
   const t = document.getElementById('toast');
   t.textContent = icon + ' ' + msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
-function initials(name) {
-  return name.split(' ').map(w => w[0]).join('').toUpperCase().substr(0, 2);
+
+function setSyncBadge(status) {
+  const b = document.getElementById('syncBadge');
+  b.className = 'sync-badge';
+  if (status === 'ok')      { b.classList.add('sync-ok');      b.textContent = '☁️ Tersinkron'; }
+  else if (status === 'loading') { b.classList.add('sync-loading'); b.innerHTML = '<span class="spin">⏳</span> Menyimpan'; }
+  else                      { b.classList.add('sync-err');     b.textContent = '❌ Gagal Sync'; }
 }
 
-// Set header date
 function updateHeaderDate() {
   const d = new Date();
-  const opts = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' };
-  document.getElementById('headerDate').textContent = d.toLocaleDateString('id-ID', opts);
+  document.getElementById('headerDate').textContent =
+    d.toLocaleDateString('id-ID', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
 }
 updateHeaderDate();
 
 // ============================================================
+// REALTIME LISTENERS — data otomatis update dari Firestore
+// ============================================================
+function startListeners() {
+  // Orders — listen realtime
+  onSnapshot(query(ordersCol, orderBy('createdAt', 'asc')), snap => {
+    orders = snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
+    renderOrders();
+    setSyncBadge('ok');
+  }, err => {
+    console.error('Orders listener error:', err);
+    setSyncBadge('err');
+  });
+
+  // Deposits — listen realtime
+  onSnapshot(query(depositsCol, orderBy('createdAt', 'asc')), snap => {
+    deposits = snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
+    renderDeposits();
+  }, err => console.error('Deposits listener error:', err));
+}
+
+// ============================================================
 // TAB SWITCHING
 // ============================================================
-function switchTab(name) {
+window.switchTab = function(name) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   const tabs = ['pesanan', 'deposit', 'ringkasan', 'tagihan', 'qris'];
   document.querySelectorAll('.nav-btn')[tabs.indexOf(name)].classList.add('active');
   if (name === 'ringkasan') renderSummary();
-  if (name === 'tagihan') renderBuyerList();
-  if (name === 'deposit') renderDeposits();
-  if (name === 'qris') renderQris();
-}
+  if (name === 'tagihan')   renderBuyerList();
+  if (name === 'deposit')   renderDeposits();
+  if (name === 'qris')      renderQris();
+};
 
 // ============================================================
-// PESANAN
+// PESANAN — CRUD
 // ============================================================
-function addOrder() {
+window.addOrder = async function() {
   const buyer = document.getElementById('inBuyer').value.trim();
-  const item = document.getElementById('inItem').value.trim();
+  const item  = document.getElementById('inItem').value.trim();
   const price = parseFloat(document.getElementById('inPrice').value);
-  const qty = parseInt(document.getElementById('inQty').value) || 1;
-  const note = document.getElementById('inNote').value.trim();
+  const qty   = parseInt(document.getElementById('inQty').value) || 1;
+  const note  = document.getElementById('inNote').value.trim();
 
   if (!buyer || !item || !price) {
-    showToast('Lengkapi nama pembeli, item, dan harga!', '⚠️');
-    return;
+    showToast('Lengkapi nama pembeli, item, dan harga!', '⚠️'); return;
   }
 
-  const order = {
-    id: generateId(),
-    buyer: buyer,
-    item: item,
-    price: price,
-    qty: qty,
-    note: note,
-    paid: false,
-    date: today(),
-    createdAt: Date.now()
-  };
-  orders.push(order);
-  saveData(DB_ORDERS, orders);
+  const btn = document.getElementById('btnAddOrder');
+  btn.disabled = true;
+  btn.textContent = '⏳ Menyimpan...';
+  setSyncBadge('loading');
 
-  document.getElementById('inItem').value = '';
-  document.getElementById('inPrice').value = '';
-  document.getElementById('inQty').value = '1';
-  document.getElementById('inNote').value = '';
-
-  renderOrders();
-  showToast(item + ' ditambahkan!');
-}
-
-function setInputMode(mode) {
-  const isManual = mode === 'manual';
-  document.getElementById('formManual').style.display = isManual ? 'block' : 'none';
-  document.getElementById('formBulk').style.display = isManual ? 'none' : 'block';
-  document.getElementById('btnModeManual').style.cssText = isManual
-    ? 'font-size:12px;padding:6px 10px;background:var(--brand);color:white;border-color:var(--brand)'
-    : 'font-size:12px;padding:6px 10px';
-  document.getElementById('btnModeBulk').style.cssText = !isManual
-    ? 'font-size:12px;padding:6px 10px;background:var(--brand);color:white;border-color:var(--brand)'
-    : 'font-size:12px;padding:6px 10px';
-  if (!isManual) document.getElementById('bulkPreview').style.display = 'none';
-}
-
-function parseBulkLine(line) {
-  const raw = line.trim();
-  if (!raw) return null;
-  // Split by ' - ' or '-' as separator, allowing spaces
-  const parts = raw.split(/\s*-\s*/);
-  if (parts.length < 3) return { error: `Format salah: "${raw}"` };
-
-  const item = parts[0].trim();
-  // Join middle parts in case item name has dashes, price is last before buyer
-  // Actually: item - price - buyer format strictly
-  const buyer = parts[parts.length - 1].trim();
-  const priceRaw = parts[parts.length - 2].trim();
-  // item might be parts[0..n-3] joined
-  const itemName = parts.slice(0, parts.length - 2).join(' - ').trim();
-
-  if (!itemName) return { error: `Nama item kosong: "${raw}"` };
-  if (!buyer) return { error: `Nama pembeli kosong: "${raw}"` };
-
-  // Parse price: remove dots, commas, Rp prefix, spaces
-  const priceClean = priceRaw.replace(/[Rp\s\.]/g, '').replace(',', '.');
-  const price = parseFloat(priceClean);
-  if (isNaN(price) || price <= 0) return { error: `Harga tidak valid "${priceRaw}": "${raw}"` };
-
-  return { item: itemName, price, buyer, raw };
-}
-
-function previewBulk() {
-  const lines = document.getElementById('bulkInput').value.split('\n').filter(l => l.trim());
-  if (lines.length === 0) { showToast('Input masih kosong!', '⚠️'); return; }
-
-  const results = lines.map(parseBulkLine).filter(Boolean);
-  const valid = results.filter(r => !r.error);
-  const invalid = results.filter(r => r.error);
-
-  let html = `<div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px">
-    Preview: <span style="color:var(--green-dark)">${valid.length} valid</span>${invalid.length > 0 ? ` · <span style="color:var(--red)">${invalid.length} error</span>` : ''}
-  </div>`;
-
-  results.forEach(r => {
-    if (r.error) {
-      html += `<div class="bulk-row invalid"><div class="bulk-row-info"><div class="bulk-row-name">⚠️ Error</div><div class="bulk-row-buyer">${r.error}</div></div></div>`;
-    } else {
-      html += `<div class="bulk-row valid">
-        <div class="bulk-row-info">
-          <div class="bulk-row-name">${r.item}</div>
-          <div class="bulk-row-buyer">👤 ${r.buyer}</div>
-        </div>
-        <div class="bulk-row-price">${rupiah(r.price)}</div>
-      </div>`;
-    }
-  });
-
-  const preview = document.getElementById('bulkPreview');
-  preview.innerHTML = html;
-  preview.style.display = 'block';
-}
-
-function submitBulk() {
-  const lines = document.getElementById('bulkInput').value.split('\n').filter(l => l.trim());
-  if (lines.length === 0) { showToast('Input masih kosong!', '⚠️'); return; }
-
-  const results = lines.map(parseBulkLine).filter(Boolean);
-  const valid = results.filter(r => !r.error);
-  const invalid = results.filter(r => r.error);
-
-  if (valid.length === 0) { showToast('Tidak ada data valid!', '⚠️'); return; }
-
-  if (invalid.length > 0) {
-    if (!confirm(`${invalid.length} baris punya format salah dan akan dilewati. Lanjut masukkan ${valid.length} pesanan yang valid?`)) return;
-  }
-
-  valid.forEach(r => {
-    orders.push({
-      id: generateId(),
-      buyer: r.buyer,
-      item: r.item,
-      price: r.price,
-      qty: 1,
-      note: '',
+  try {
+    await addDoc(ordersCol, {
+      buyer, item, price, qty, note,
       paid: false,
       date: today(),
       createdAt: Date.now()
     });
-  });
 
-  saveData(DB_ORDERS, orders);
-  document.getElementById('bulkInput').value = '';
-  document.getElementById('bulkPreview').style.display = 'none';
-  renderOrders();
-  showToast(`${valid.length} pesanan berhasil ditambahkan! 🎉`);
-}
+    document.getElementById('inItem').value  = '';
+    document.getElementById('inPrice').value = '';
+    document.getElementById('inQty').value   = '1';
+    document.getElementById('inNote').value  = '';
+    showToast(item + ' ditambahkan!');
+  } catch(e) {
+    console.error(e);
+    showToast('Gagal menyimpan. Cek koneksi!', '❌');
+    setSyncBadge('err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '➕ Tambah Pesanan';
+  }
+};
 
-function deleteOrder(id) {
+window.deleteOrder = async function(firestoreId) {
   if (!confirm('Hapus pesanan ini?')) return;
-  orders = orders.filter(o => o.id !== id);
-  saveData(DB_ORDERS, orders);
-  renderOrders();
-  showToast('Pesanan dihapus', '🗑️');
-}
+  setSyncBadge('loading');
+  try {
+    await deleteDoc(doc(db, 'orders', firestoreId));
+    showToast('Pesanan dihapus', '🗑️');
+  } catch(e) {
+    showToast('Gagal hapus!', '❌'); setSyncBadge('err');
+  }
+};
 
-function togglePaid(id) {
-  const o = orders.find(o => o.id === id);
+window.togglePaid = async function(firestoreId) {
+  const o = orders.find(o => o.firestoreId === firestoreId);
   if (!o) return;
-  o.paid = !o.paid;
-  saveData(DB_ORDERS, orders);
-  renderOrders();
-  showToast(o.paid ? 'Ditandai sudah bayar ✓' : 'Ditandai belum bayar');
-}
+  setSyncBadge('loading');
+  try {
+    await updateDoc(doc(db, 'orders', firestoreId), { paid: !o.paid });
+    showToast(!o.paid ? 'Ditandai sudah bayar ✓' : 'Ditandai belum bayar');
+  } catch(e) {
+    showToast('Gagal update!', '❌'); setSyncBadge('err');
+  }
+};
 
 function renderOrders() {
-  const filterBuyer = document.getElementById('filterBuyer').value.toLowerCase();
+  const filterBuyer  = document.getElementById('filterBuyer').value.toLowerCase();
   const filterStatus = document.getElementById('filterStatus').value;
-  const todayOrders = orders.filter(o => o.date === today());
+  const todayOrders  = orders.filter(o => o.date === today());
 
   let filtered = todayOrders;
-  if (filterBuyer) filtered = filtered.filter(o => o.buyer.toLowerCase().includes(filterBuyer));
-  if (filterStatus === 'paid') filtered = filtered.filter(o => o.paid);
+  if (filterBuyer)          filtered = filtered.filter(o => o.buyer.toLowerCase().includes(filterBuyer));
+  if (filterStatus === 'paid')   filtered = filtered.filter(o => o.paid);
   if (filterStatus === 'unpaid') filtered = filtered.filter(o => !o.paid);
 
   document.getElementById('orderCount').textContent = filtered.length + ' item';
-
   const list = document.getElementById('orderList');
+
   if (filtered.length === 0) {
     list.innerHTML = `<div class="empty-state"><div class="empty-icon">🍱</div><div class="empty-text">Belum ada pesanan${filterBuyer || filterStatus ? ' yang sesuai filter' : ' hari ini'}</div></div>`;
     return;
@@ -685,10 +598,10 @@ function renderOrders() {
         <div class="order-item-buyer">👤 ${o.buyer}${o.qty > 1 ? ` · x${o.qty}` : ''}</div>
         ${o.note ? `<div class="order-item-details">📝 ${o.note}</div>` : ''}
         <div class="order-item-actions">
-          <button class="btn btn-sm ${o.paid ? 'btn-warning' : 'btn-success'}" onclick="togglePaid('${o.id}')">
+          <button class="btn btn-sm ${o.paid ? 'btn-warning' : 'btn-success'}" onclick="togglePaid('${o.firestoreId}')">
             ${o.paid ? '↩ Batal Lunas' : '✓ Tandai Lunas'}
           </button>
-          <button class="btn btn-sm btn-danger" onclick="deleteOrder('${o.id}')">🗑 Hapus</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteOrder('${o.firestoreId}')">🗑 Hapus</button>
         </div>
       </div>
       <div class="order-item-price">${rupiah(o.price * o.qty)}</div>
@@ -697,57 +610,148 @@ function renderOrders() {
 }
 
 // ============================================================
-// DEPOSIT
+// INPUT MODE (Manual / Bulk)
 // ============================================================
-function addDeposit() {
-  const name = document.getElementById('depName').value.trim();
-  const amount = parseFloat(document.getElementById('depAmount').value);
-  const note = document.getElementById('depNote').value.trim();
+window.setInputMode = function(mode) {
+  const isManual = mode === 'manual';
+  document.getElementById('formManual').style.display = isManual ? 'block' : 'none';
+  document.getElementById('formBulk').style.display   = isManual ? 'none'  : 'block';
+  document.getElementById('btnModeManual').style.cssText = isManual
+    ? 'font-size:12px;padding:6px 10px;background:var(--brand);color:white;border-color:var(--brand)'
+    : 'font-size:12px;padding:6px 10px';
+  document.getElementById('btnModeBulk').style.cssText = !isManual
+    ? 'font-size:12px;padding:6px 10px;background:var(--brand);color:white;border-color:var(--brand)'
+    : 'font-size:12px;padding:6px 10px';
+  if (!isManual) document.getElementById('bulkPreview').style.display = 'none';
+};
 
-  if (!name || !amount) {
-    showToast('Lengkapi nama dan jumlah deposit!', '⚠️');
-    return;
+function parseBulkLine(line) {
+  const raw   = line.trim();
+  if (!raw) return null;
+  const parts = raw.split(/\s*-\s*/);
+  if (parts.length < 3) return { error: `Format salah: "${raw}"` };
+  const buyer    = parts[parts.length - 1].trim();
+  const priceRaw = parts[parts.length - 2].trim();
+  const itemName = parts.slice(0, parts.length - 2).join(' - ').trim();
+  if (!itemName) return { error: `Nama item kosong: "${raw}"` };
+  if (!buyer)    return { error: `Nama pembeli kosong: "${raw}"` };
+  const priceClean = priceRaw.replace(/[Rp\s\.]/g, '').replace(',', '.');
+  const price      = parseFloat(priceClean);
+  if (isNaN(price) || price <= 0) return { error: `Harga tidak valid "${priceRaw}"` };
+  return { item: itemName, price, buyer, raw };
+}
+
+window.previewBulk = function() {
+  const lines   = document.getElementById('bulkInput').value.split('\n').filter(l => l.trim());
+  if (!lines.length) { showToast('Input masih kosong!', '⚠️'); return; }
+  const results = lines.map(parseBulkLine).filter(Boolean);
+  const valid   = results.filter(r => !r.error);
+  const invalid = results.filter(r => r.error);
+
+  let html = `<div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px">
+    Preview: <span style="color:var(--green-dark)">${valid.length} valid</span>${invalid.length > 0 ? ` · <span style="color:var(--red)">${invalid.length} error</span>` : ''}
+  </div>`;
+  results.forEach(r => {
+    if (r.error) {
+      html += `<div class="bulk-row invalid"><div class="bulk-row-info"><div class="bulk-row-name">⚠️ Error</div><div class="bulk-row-buyer">${r.error}</div></div></div>`;
+    } else {
+      html += `<div class="bulk-row valid"><div class="bulk-row-info"><div class="bulk-row-name">${r.item}</div><div class="bulk-row-buyer">👤 ${r.buyer}</div></div><div class="bulk-row-price">${rupiah(r.price)}</div></div>`;
+    }
+  });
+
+  const preview = document.getElementById('bulkPreview');
+  preview.innerHTML = html;
+  preview.style.display = 'block';
+};
+
+window.submitBulk = async function() {
+  const lines   = document.getElementById('bulkInput').value.split('\n').filter(l => l.trim());
+  if (!lines.length) { showToast('Input masih kosong!', '⚠️'); return; }
+  const results = lines.map(parseBulkLine).filter(Boolean);
+  const valid   = results.filter(r => !r.error);
+  const invalid = results.filter(r => r.error);
+  if (!valid.length) { showToast('Tidak ada data valid!', '⚠️'); return; }
+  if (invalid.length > 0) {
+    if (!confirm(`${invalid.length} baris punya format salah dan akan dilewati. Lanjut masukkan ${valid.length} pesanan yang valid?`)) return;
   }
 
-  const dep = {
-    id: generateId(),
-    name: name,
-    amount: amount,
-    note: note,
-    date: today(),
-    createdAt: Date.now()
-  };
-  deposits.push(dep);
-  saveData(DB_DEPOSITS, deposits);
+  const btn = document.getElementById('btnSubmitBulk');
+  btn.disabled = true;
+  btn.textContent = '⏳ Menyimpan...';
+  setSyncBadge('loading');
 
-  document.getElementById('depName').value = '';
-  document.getElementById('depAmount').value = '';
-  document.getElementById('depNote').value = '';
+  try {
+    const now = Date.now();
+    // Batch add dengan Promise.all
+    await Promise.all(valid.map((r, i) =>
+      addDoc(ordersCol, {
+        buyer: r.buyer, item: r.item, price: r.price, qty: 1, note: '',
+        paid: false, date: today(), createdAt: now + i
+      })
+    ));
+    document.getElementById('bulkInput').value = '';
+    document.getElementById('bulkPreview').style.display = 'none';
+    showToast(`${valid.length} pesanan berhasil ditambahkan! 🎉`);
+  } catch(e) {
+    showToast('Gagal menyimpan bulk!', '❌'); setSyncBadge('err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '📥 Masukkan Semua';
+  }
+};
 
-  renderDeposits();
-  showToast('Deposit ' + name + ' disimpan!');
-}
+// ============================================================
+// DEPOSIT — CRUD
+// ============================================================
+window.addDeposit = async function() {
+  const name   = document.getElementById('depName').value.trim();
+  const amount = parseFloat(document.getElementById('depAmount').value);
+  const note   = document.getElementById('depNote').value.trim();
 
-function deleteDeposit(id) {
+  if (!name || !amount) { showToast('Lengkapi nama dan jumlah deposit!', '⚠️'); return; }
+
+  const btn = document.getElementById('btnAddDeposit');
+  btn.disabled = true;
+  btn.textContent = '⏳ Menyimpan...';
+  setSyncBadge('loading');
+
+  try {
+    await addDoc(depositsCol, { name, amount, note, date: today(), createdAt: Date.now() });
+    document.getElementById('depName').value   = '';
+    document.getElementById('depAmount').value = '';
+    document.getElementById('depNote').value   = '';
+    showToast('Deposit ' + name + ' disimpan!');
+  } catch(e) {
+    showToast('Gagal menyimpan deposit!', '❌'); setSyncBadge('err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '💰 Simpan Deposit';
+  }
+};
+
+window.deleteDeposit = async function(firestoreId) {
   if (!confirm('Hapus deposit ini?')) return;
-  deposits = deposits.filter(d => d.id !== id);
-  saveData(DB_DEPOSITS, deposits);
-  renderDeposits();
-  showToast('Deposit dihapus', '🗑️');
-}
+  setSyncBadge('loading');
+  try {
+    await deleteDoc(doc(db, 'deposits', firestoreId));
+    showToast('Deposit dihapus', '🗑️');
+  } catch(e) {
+    showToast('Gagal hapus!', '❌'); setSyncBadge('err');
+  }
+};
 
 function renderDeposits() {
-  const list = document.getElementById('depositList');
+  const list  = document.getElementById('depositList');
   const total = deposits.reduce((s, d) => s + d.amount, 0);
   document.getElementById('totalDeposit').textContent = rupiah(total);
-  document.getElementById('depCount').textContent = deposits.length + ' orang';
+  document.getElementById('depCount').textContent     = deposits.length + ' orang';
 
-  if (deposits.length === 0) {
+  if (!deposits.length) {
     list.innerHTML = `<div class="empty-state"><div class="empty-icon">💼</div><div class="empty-text">Belum ada deposit tersimpan</div></div>`;
     return;
   }
 
-  list.innerHTML = deposits.sort((a,b) => b.createdAt - a.createdAt).map(d => `
+  list.innerHTML = deposits.slice().sort((a,b) => b.createdAt - a.createdAt).map(d => `
     <div class="deposit-item">
       <div>
         <div class="deposit-name">👤 ${d.name}</div>
@@ -755,7 +759,7 @@ function renderDeposits() {
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <div class="deposit-amount">${rupiah(d.amount)}</div>
-        <button class="btn btn-sm btn-danger" onclick="deleteDeposit('${d.id}')">✕</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteDeposit('${d.firestoreId}')">✕</button>
       </div>
     </div>
   `).join('');
@@ -764,45 +768,33 @@ function renderDeposits() {
 // ============================================================
 // RINGKASAN
 // ============================================================
-function setPeriod(period, btn) {
+window.setPeriod = function(period, btn) {
   currentPeriod = period;
   document.querySelectorAll('.period-tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderSummary();
-}
+};
 
 function getDateRange(period) {
-  const now = new Date();
-  let dates = [];
-  if (period === 'daily') {
-    dates = [today()];
-  } else if (period === 'weekly') {
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(now);
-      d.setDate(d.getDate() - i);
-      dates.push(d.toISOString().split('T')[0]);
-    }
-  } else {
-    for (let i = 29; i >= 0; i--) {
-      const d = new Date(now);
-      d.setDate(d.getDate() - i);
-      dates.push(d.toISOString().split('T')[0]);
-    }
+  const now = new Date(); const dates = [];
+  if (period === 'daily') return [today()];
+  const days = period === 'weekly' ? 6 : 29;
+  for (let i = days; i >= 0; i--) {
+    const d = new Date(now); d.setDate(d.getDate() - i);
+    dates.push(d.toISOString().split('T')[0]);
   }
   return dates;
 }
 
 function renderSummary() {
-  const dates = getDateRange(currentPeriod);
+  const dates       = getDateRange(currentPeriod);
   const rangeOrders = orders.filter(o => dates.includes(o.date));
-
-  const totalOmzet = rangeOrders.reduce((s, o) => s + o.price * o.qty, 0);
-  const totalPaid = rangeOrders.filter(o => o.paid).reduce((s, o) => s + o.price * o.qty, 0);
+  const totalOmzet  = rangeOrders.reduce((s, o) => s + o.price * o.qty, 0);
+  const totalPaid   = rangeOrders.filter(o => o.paid).reduce((s, o) => s + o.price * o.qty, 0);
   const totalUnpaid = totalOmzet - totalPaid;
-  const totalTx = rangeOrders.length;
+  const totalTx     = rangeOrders.length;
   const uniqueBuyers = new Set(rangeOrders.map(o => o.buyer)).size;
 
-  // Top items
   const itemCount = {};
   rangeOrders.forEach(o => {
     if (!itemCount[o.item]) itemCount[o.item] = { count: 0, total: 0 };
@@ -811,34 +803,26 @@ function renderSummary() {
   });
   const topItems = Object.entries(itemCount).sort((a,b) => b[1].count - a[1].count).slice(0, 5);
 
-  // Bar chart (hanya weekly/monthly)
   let chartHTML = '';
   if (currentPeriod !== 'daily') {
-    const barDates = currentPeriod === 'weekly' ? dates : dates.filter((_, i) => i % 5 === 0 || i === dates.length - 1);
-    const barData = dates.map(d => ({
-      date: d,
-      total: orders.filter(o => o.date === d).reduce((s, o) => s + o.price * o.qty, 0)
-    }));
-    const maxVal = Math.max(...barData.map(b => b.total), 1);
+    const barData   = dates.map(d => ({ date: d, total: orders.filter(o => o.date === d).reduce((s, o) => s + o.price * o.qty, 0) }));
+    const maxVal    = Math.max(...barData.map(b => b.total), 1);
     const barsToShow = currentPeriod === 'weekly' ? barData : barData.filter((_, i) => i % 3 === 0 || i === barData.length - 1);
-    chartHTML = `
-      <div class="card" style="margin-bottom:12px">
-        <div class="section-title" style="font-size:13px">📈 Grafik Omzet</div>
-        <div class="chart-bars">
-          ${barsToShow.map((b, i) => {
-            const h = Math.max(Math.round((b.total / maxVal) * 72), 3);
-            const isToday = b.date === today();
-            const label = currentPeriod === 'weekly'
-              ? new Date(b.date).toLocaleDateString('id-ID', {weekday:'short'})
-              : b.date.split('-')[2];
-            return `<div class="bar-wrap"><div class="bar ${isToday ? 'current' : ''}" style="height:${h}px" title="${rupiah(b.total)}"></div><div class="bar-label">${label}</div></div>`;
-          }).join('')}
-        </div>
+    chartHTML = `<div class="card" style="margin-bottom:12px">
+      <div class="section-title" style="font-size:13px">📈 Grafik Omzet</div>
+      <div class="chart-bars">
+        ${barsToShow.map(b => {
+          const h     = Math.max(Math.round((b.total / maxVal) * 72), 3);
+          const isT   = b.date === today();
+          const label = currentPeriod === 'weekly'
+            ? new Date(b.date + 'T00:00:00').toLocaleDateString('id-ID', {weekday:'short'})
+            : b.date.split('-')[2];
+          return `<div class="bar-wrap"><div class="bar ${isT ? 'current' : ''}" style="height:${h}px" title="${rupiah(b.total)}"></div><div class="bar-label">${label}</div></div>`;
+        }).join('')}
       </div>
-    `;
+    </div>`;
   }
 
-  // Per buyer breakdown
   const buyerBreakdown = {};
   rangeOrders.forEach(o => {
     if (!buyerBreakdown[o.buyer]) buyerBreakdown[o.buyer] = { total: 0, paid: 0, count: 0 };
@@ -851,58 +835,28 @@ function renderSummary() {
 
   document.getElementById('summaryContent').innerHTML = `
     <div style="font-size:12px;font-weight:600;color:var(--text3);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px">${periodLabel}</div>
-
     <div class="summary-grid">
-      <div class="stat-card">
-        <div class="stat-label">Total Omzet</div>
-        <div class="stat-value orange">${rupiah(totalOmzet)}</div>
-        <div class="stat-sub">${totalTx} transaksi</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Sudah Bayar</div>
-        <div class="stat-value green">${rupiah(totalPaid)}</div>
-        <div class="stat-sub">${totalPaid > 0 ? Math.round(totalPaid / totalOmzet * 100) : 0}% lunas</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Belum Bayar</div>
-        <div class="stat-value" style="color:var(--red)">${rupiah(totalUnpaid)}</div>
-        <div class="stat-sub">piutang</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Jumlah Pembeli</div>
-        <div class="stat-value blue">${uniqueBuyers}</div>
-        <div class="stat-sub">orang unik</div>
-      </div>
+      <div class="stat-card"><div class="stat-label">Total Omzet</div><div class="stat-value orange">${rupiah(totalOmzet)}</div><div class="stat-sub">${totalTx} transaksi</div></div>
+      <div class="stat-card"><div class="stat-label">Sudah Bayar</div><div class="stat-value green">${rupiah(totalPaid)}</div><div class="stat-sub">${totalPaid > 0 ? Math.round(totalPaid / totalOmzet * 100) : 0}% lunas</div></div>
+      <div class="stat-card"><div class="stat-label">Belum Bayar</div><div class="stat-value" style="color:var(--red)">${rupiah(totalUnpaid)}</div><div class="stat-sub">piutang</div></div>
+      <div class="stat-card"><div class="stat-label">Jumlah Pembeli</div><div class="stat-value blue">${uniqueBuyers}</div><div class="stat-sub">orang unik</div></div>
     </div>
-
     ${chartHTML}
-
-    ${topItems.length > 0 ? `
-    <div class="card" style="margin-bottom:12px">
+    ${topItems.length > 0 ? `<div class="card" style="margin-bottom:12px">
       <div class="section-title" style="font-size:13px;margin-bottom:10px">🏆 Item Terlaris</div>
       ${topItems.map(([name, d], i) => `
         <div class="flex justify-between items-center" style="padding:8px 0;border-bottom:${i < topItems.length-1 ? '1px solid var(--border)' : 'none'}">
-          <div>
-            <span style="font-size:13px;font-weight:600">${['🥇','🥈','🥉','4️⃣','5️⃣'][i]} ${name}</span>
-            <div style="font-size:11px;color:var(--text3)">Terjual ${d.count}x</div>
-          </div>
+          <div><span style="font-size:13px;font-weight:600">${['🥇','🥈','🥉','4️⃣','5️⃣'][i]} ${name}</span><div style="font-size:11px;color:var(--text3)">Terjual ${d.count}x</div></div>
           <div style="font-size:13px;font-weight:700;font-family:'DM Mono',monospace;color:var(--brand)">${rupiah(d.total)}</div>
-        </div>
-      `).join('')}
+        </div>`).join('')}
     </div>` : ''}
-
-    ${Object.keys(buyerBreakdown).length > 0 ? `
-    <div class="card">
+    ${Object.keys(buyerBreakdown).length > 0 ? `<div class="card">
       <div class="section-title" style="font-size:13px;margin-bottom:10px">👥 Per Pembeli</div>
       ${Object.entries(buyerBreakdown).sort((a,b) => b[1].total - a[1].total).map(([name, d]) => `
         <div class="flex justify-between items-center" style="padding:8px 0;border-bottom:1px solid var(--border)">
-          <div>
-            <div style="font-size:13px;font-weight:600">${name}</div>
-            <div style="font-size:11px;color:var(--text3)">${d.count} pesanan · Lunas ${rupiah(d.paid)}</div>
-          </div>
+          <div><div style="font-size:13px;font-weight:600">${name}</div><div style="font-size:11px;color:var(--text3)">${d.count} pesanan · Lunas ${rupiah(d.paid)}</div></div>
           <div style="font-size:13px;font-weight:700;font-family:'DM Mono',monospace">${rupiah(d.total)}</div>
-        </div>
-      `).join('')}
+        </div>`).join('')}
     </div>` : `<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">Belum ada data penjualan</div></div>`}
   `;
 }
@@ -910,20 +864,19 @@ function renderSummary() {
 // ============================================================
 // TAGIHAN
 // ============================================================
-function renderBuyerList() {
+window.renderBuyerList = function() {
   const todayOrders = orders.filter(o => o.date === today());
-  const buyers = {};
+  const buyers      = {};
   todayOrders.forEach(o => {
     if (!buyers[o.buyer]) buyers[o.buyer] = { total: 0, count: 0, unpaid: 0 };
-    buyers[o.buyer].total += o.price * o.qty;
-    buyers[o.buyer].count += 1;
+    buyers[o.buyer].total  += o.price * o.qty;
+    buyers[o.buyer].count  += 1;
     if (!o.paid) buyers[o.buyer].unpaid += o.price * o.qty;
   });
 
-  const totalUnpaid = Object.values(buyers).reduce((s, d) => s + d.unpaid, 0);
+  const totalUnpaid      = Object.values(buyers).reduce((s, d) => s + d.unpaid, 0);
   const unpaidBuyerCount = Object.values(buyers).filter(d => d.unpaid > 0).length;
 
-  // Banner rekap semua belum bayar
   const banner = document.getElementById('unpaidBanner');
   if (unpaidBuyerCount > 0) {
     banner.innerHTML = `
@@ -940,12 +893,10 @@ function renderBuyerList() {
           <button class="btn btn-sm" style="flex:1;justify-content:center;background:white;border:1.5px solid var(--brand);color:var(--brand);font-weight:700" onclick="shareAllUnpaidBill()">📤 Share Rekap</button>
         </div>
       </div>`;
-  } else {
-    banner.innerHTML = '';
-  }
+  } else { banner.innerHTML = ''; }
 
   const buyerDiv = document.getElementById('buyerList');
-  if (Object.keys(buyers).length === 0) {
+  if (!Object.keys(buyers).length) {
     buyerDiv.innerHTML = `<div class="empty-state"><div class="empty-icon">🧾</div><div class="empty-text">Belum ada pesanan hari ini</div></div>`;
     document.getElementById('billPreview').innerHTML = '';
     return;
@@ -960,23 +911,22 @@ function renderBuyerList() {
           <div class="buyer-total">${d.count} item · ${rupiah(d.total)} · ${d.unpaid > 0 ? '<span style="color:var(--brand);font-weight:700">⏳ Belum ' + rupiah(d.unpaid) + '</span>' : '✅ Lunas'}</div>
         </div>
         <span style="font-size:18px">→</span>
-      </div>
-    `).join('') + `</div>`;
+      </div>`).join('') + `</div>`;
 
   if (selectedBuyer) renderBill(selectedBuyer);
-}
+};
 
-function selectBuyer(name) {
+window.selectBuyer = function(name) {
   selectedBuyer = name;
-  renderBuyerList();
+  window.renderBuyerList();
   renderBill(name);
-}
+};
 
 function buildBillText(buyerName, onlyUnpaid) {
   const buyerOrders = orders.filter(o => o.date === today() && o.buyer === buyerName && (onlyUnpaid ? !o.paid : true));
-  if (buyerOrders.length === 0) return null;
-  const total = buyerOrders.reduce((s, o) => s + o.price * o.qty, 0);
-  const d = new Date();
+  if (!buyerOrders.length) return null;
+  const total   = buyerOrders.reduce((s, o) => s + o.price * o.qty, 0);
+  const d       = new Date();
   const dateStr = d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
   const timeStr = d.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
 
@@ -985,7 +935,7 @@ function buildBillText(buyerName, onlyUnpaid) {
     const sub = o.price * o.qty;
     t += `• ${o.item}`;
     if (o.qty > 1) t += ` (x${o.qty})`;
-    if (o.note) t += ` [${o.note}]`;
+    if (o.note)    t += ` [${o.note}]`;
     t += `\n  ${rupiah(o.price)}${o.qty > 1 ? ' × ' + o.qty + ' = ' + rupiah(sub) : ''}`;
     t += o.paid ? ' ✅' : ' ⏳';
     t += '\n';
@@ -999,7 +949,6 @@ function buildBillText(buyerName, onlyUnpaid) {
 function renderBill(buyerName) {
   const billText = buildBillText(buyerName, false);
   if (!billText) return;
-
   const escaped = billText.replace(/\\/g, '\\\\').replace(/`/g, '\\`');
   document.getElementById('billPreview').innerHTML = `
     <div style="margin-top:16px">
@@ -1009,56 +958,44 @@ function renderBill(buyerName) {
         <button class="btn btn-ghost btn-sm" onclick="copyBill(\`${escaped}\`)">📋 Copy</button>
         <button class="btn btn-primary btn-sm" onclick="shareBill(\`${escaped}\`)">📤 Share / WA</button>
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
 function buildAllUnpaidText() {
-  const todayOrders = orders.filter(o => o.date === today() && !o.paid);
-  const buyers = [...new Set(todayOrders.map(o => o.buyer))];
-  if (buyers.length === 0) return null;
+  const todayUnpaid = orders.filter(o => o.date === today() && !o.paid);
+  const buyers      = [...new Set(todayUnpaid.map(o => o.buyer))];
+  if (!buyers.length) return null;
 
-  const d = new Date();
+  const d       = new Date();
   const dateStr = d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
   const timeStr = d.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
 
-  let text = `🍜 *JAJANYUK — REKAP TAGIHAN*\n`;
-  text += `📅 ${dateStr}, ${timeStr}\n`;
-  text += `━━━━━━━━━━━━━━━━━━━\n`;
-
+  let text = `🍜 *JAJANYUK — REKAP TAGIHAN*\n📅 ${dateStr}, ${timeStr}\n━━━━━━━━━━━━━━━━━━━\n`;
   let grandTotal = 0;
   buyers.forEach((name, idx) => {
-    const bOrders = todayOrders.filter(o => o.buyer === name);
-    const bTotal = bOrders.reduce((s, o) => s + o.price * o.qty, 0);
-    grandTotal += bTotal;
+    const bOrders = todayUnpaid.filter(o => o.buyer === name);
+    const bTotal  = bOrders.reduce((s, o) => s + o.price * o.qty, 0);
+    grandTotal   += bTotal;
     text += `\n👤 *${name}*\n`;
     bOrders.forEach(o => {
-      const sub = o.price * o.qty;
       text += `  • ${o.item}`;
       if (o.qty > 1) text += ` (x${o.qty})`;
-      if (o.note) text += ` [${o.note}]`;
-      text += ` → ${rupiah(sub)}\n`;
+      if (o.note)    text += ` [${o.note}]`;
+      text += ` → ${rupiah(o.price * o.qty)}\n`;
     });
     text += `  💰 Subtotal: *${rupiah(bTotal)}*\n`;
     if (idx < buyers.length - 1) text += `  ─────────────────\n`;
   });
-
-  text += `\n━━━━━━━━━━━━━━━━━━━\n`;
-  text += `⏳ *TOTAL BELUM BAYAR: ${rupiah(grandTotal)}*\n`;
-  text += `(${buyers.length} pembeli)\n`;
-  text += `━━━━━━━━━━━━━━━━━━━\n`;
-  text += `Mohon segera melunasi. Terima kasih! 🙏`;
+  text += `\n━━━━━━━━━━━━━━━━━━━\n⏳ *TOTAL BELUM BAYAR: ${rupiah(grandTotal)}*\n(${buyers.length} pembeli)\n━━━━━━━━━━━━━━━━━━━\nMohon segera melunasi. Terima kasih! 🙏`;
   return text;
 }
 
-function showAllUnpaidBill() {
+window.showAllUnpaidBill = function() {
   const text = buildAllUnpaidText();
   if (!text) { showToast('Tidak ada tagihan belum bayar', '✅'); return; }
-
   const escaped = text.replace(/\\/g, '\\\\').replace(/`/g, '\\`');
   selectedBuyer = null;
   document.getElementById('buyerList').querySelectorAll('.buyer-option').forEach(el => el.classList.remove('selected'));
-
   document.getElementById('billPreview').innerHTML = `
     <div style="margin-top:16px">
       <div class="section-title" style="color:var(--brand)">⏳ Rekap Semua Tagihan Belum Bayar</div>
@@ -1067,18 +1004,17 @@ function showAllUnpaidBill() {
         <button class="btn btn-ghost btn-sm" onclick="copyBill(\`${escaped}\`)">📋 Copy</button>
         <button class="btn btn-primary btn-sm" onclick="shareBill(\`${escaped}\`)">📤 Share / WA</button>
       </div>
-    </div>
-  `;
-  document.getElementById('billPreview').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
+    </div>`;
+  document.getElementById('billPreview').scrollIntoView({ behavior:'smooth', block:'start' });
+};
 
-function shareAllUnpaidBill() {
+window.shareAllUnpaidBill = function() {
   const text = buildAllUnpaidText();
   if (!text) { showToast('Tidak ada tagihan belum bayar', '✅'); return; }
   shareBill(text);
-}
+};
 
-function copyBill(text) {
+window.copyBill = function(text) {
   navigator.clipboard.writeText(text).then(() => showToast('Tagihan disalin!'))
     .catch(() => {
       const ta = document.createElement('textarea');
@@ -1086,128 +1022,136 @@ function copyBill(text) {
       ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
       showToast('Tagihan disalin!');
     });
-}
+};
 
-function shareBill(text) {
+window.shareBill = function(text) {
   if (navigator.share) {
-    navigator.share({ text: text }).catch(() => {});
+    navigator.share({ text }).catch(() => {});
   } else {
-    const waUrl = 'https://wa.me/?text=' + encodeURIComponent(text);
-    window.open(waUrl, '_blank');
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
   }
+};
+
+// ============================================================
+// QRIS — disimpan ke Firestore doc: settings/qris
+// ============================================================
+function renderQris() {
+  getDoc(doc(db, 'settings', 'qris')).then(snap => {
+    const uploadCard = document.getElementById('qrisUploadCard');
+    const display    = document.getElementById('qrisDisplay');
+    const hint       = document.getElementById('qrisEmptyHint');
+
+    if (snap.exists() && snap.data().imageBase64) {
+      const imgData = snap.data().imageBase64;
+      uploadCard.style.display = 'none';
+      display.style.display    = 'block';
+      hint.style.display       = 'none';
+      document.getElementById('qrisImg').src     = imgData;
+      document.getElementById('qrisImgFull').src = imgData;
+      renderQrisNominals();
+    } else {
+      uploadCard.style.display = 'block';
+      display.style.display    = 'none';
+      hint.style.display       = 'none';
+    }
+  }).catch(() => {
+    document.getElementById('qrisUploadCard').style.display = 'block';
+  });
 }
 
-// ============================================================
-// QRIS
-// ============================================================
-const DB_QRIS = 'jajanyuk_qris';
-let qrisOverlayNominal = '';
-
-function handleQrisUpload(event) {
+window.handleQrisUpload = async function(event) {
   const file = event.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = function(e) {
-    localStorage.setItem(DB_QRIS, e.target.result);
-    renderQris();
-    showToast('QRIS berhasil disimpan! 🎉');
+  reader.onload = async function(e) {
+    try {
+      setSyncBadge('loading');
+      await setDoc(doc(db, 'settings', 'qris'), { imageBase64: e.target.result });
+      renderQris();
+      showToast('QRIS berhasil disimpan! 🎉');
+      setSyncBadge('ok');
+    } catch(err) {
+      showToast('Gagal upload QRIS!', '❌'); setSyncBadge('err');
+    }
   };
   reader.readAsDataURL(file);
-}
+};
 
-function renderQris() {
-  const qrisData = localStorage.getItem(DB_QRIS);
-  const uploadCard = document.getElementById('qrisUploadCard');
-  const display = document.getElementById('qrisDisplay');
-  const hint = document.getElementById('qrisEmptyHint');
-
-  if (qrisData) {
-    uploadCard.style.display = 'none';
-    display.style.display = 'block';
-    hint.style.display = 'none';
-    document.getElementById('qrisImg').src = qrisData;
-    document.getElementById('qrisImgFull').src = qrisData;
-    renderQrisNominals();
-  } else {
-    uploadCard.style.display = 'block';
-    display.style.display = 'none';
-    hint.style.display = 'none';
+window.changeQris = async function() {
+  if (!confirm('Ganti gambar QRIS?')) return;
+  try {
+    await deleteDoc(doc(db, 'settings', 'qris'));
+    renderQris();
+  } catch(e) {
+    showToast('Gagal hapus QRIS!', '❌');
   }
-}
+};
 
 function renderQrisNominals() {
   const todayOrders = orders.filter(o => o.date === today());
-  const buyers = {};
+  const buyers      = {};
   todayOrders.forEach(o => {
     if (!buyers[o.buyer]) buyers[o.buyer] = { total: 0, unpaid: 0 };
-    buyers[o.buyer].total += o.price * o.qty;
+    buyers[o.buyer].total  += o.price * o.qty;
     if (!o.paid) buyers[o.buyer].unpaid += o.price * o.qty;
   });
 
-  const totalAll = todayOrders.reduce((s, o) => s + o.price * o.qty, 0);
+  const totalAll    = todayOrders.reduce((s, o) => s + o.price * o.qty, 0);
   const totalUnpaid = todayOrders.filter(o => !o.paid).reduce((s, o) => s + o.price * o.qty, 0);
+  const container   = document.getElementById('qrisNominalList');
 
-  const container = document.getElementById('qrisNominalList');
-  if (Object.keys(buyers).length === 0) {
+  if (!Object.keys(buyers).length) {
     container.innerHTML = `<span style="font-size:13px;color:var(--text2)">Belum ada pesanan hari ini</span>`;
     return;
   }
 
   let chips = '';
-  // Per buyer unpaid
   Object.entries(buyers).forEach(([name, d]) => {
-    if (d.unpaid > 0) {
+    if (d.unpaid > 0)
       chips += `<span class="nominal-chip" onclick="copyNominal(${d.unpaid}, '${name}')" title="Tagihan ${name}">${initials(name)} ${rupiah(d.unpaid)}</span>`;
-    }
   });
-  // Total all & total unpaid
-  if (totalUnpaid > 0) {
+  if (totalUnpaid > 0)
     chips += `<span class="nominal-chip" style="border-color:var(--red);color:var(--red)" onclick="copyNominal(${totalUnpaid}, 'semua belum bayar')" title="Total belum bayar">⏳ ${rupiah(totalUnpaid)}</span>`;
-  }
   chips += `<span class="nominal-chip" style="border-color:var(--green-dark);color:var(--green-dark)" onclick="copyNominal(${totalAll}, 'total hari ini')" title="Total hari ini">✓ ${rupiah(totalAll)}</span>`;
-
   container.innerHTML = chips;
 }
 
-function copyNominal(amount, label) {
+window.copyNominal = function(amount, label) {
   const num = Math.round(amount).toString();
   navigator.clipboard.writeText(num).catch(() => {
     const ta = document.createElement('textarea');
-    ta.value = num; document.body.appendChild(ta);
-    ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    ta.value = num; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
   });
   qrisOverlayNominal = rupiah(amount);
   showToast('Nominal ' + rupiah(amount) + ' disalin!', '💰');
-}
+};
 
-function openQrisFullscreen() {
-  const overlay = document.getElementById('qrisOverlay');
-  overlay.style.display = 'flex';
+window.openQrisFullscreen = function() {
+  document.getElementById('qrisOverlay').style.display = 'flex';
   document.getElementById('qrisOverlayNominal').textContent = qrisOverlayNominal || '';
   document.body.style.overflow = 'hidden';
-}
+};
 
-function closeQrisFullscreen() {
+window.closeQrisFullscreen = function() {
   document.getElementById('qrisOverlay').style.display = 'none';
   document.body.style.overflow = '';
-}
+};
 
-function changeQris() {
-  if (!confirm('Ganti gambar QRIS?')) return;
-  localStorage.removeItem(DB_QRIS);
-  renderQris();
-}
-
-// Close overlay on backdrop click
 document.getElementById('qrisOverlay').addEventListener('click', function(e) {
-  if (e.target === this) closeQrisFullscreen();
+  if (e.target === this) window.closeQrisFullscreen();
 });
 
 // ============================================================
 // INIT
 // ============================================================
-renderOrders();
-renderDeposits();
+startListeners();
+
+// Sembunyikan loading overlay setelah listeners terpasang
+setTimeout(() => {
+  document.getElementById('loadingOverlay').style.display = 'none';
+}, 1500);
+
 </script>
 </body>
 </html>
