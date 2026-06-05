@@ -292,8 +292,8 @@
 
       <div class="section-title">📋 Pesanan Hari Ini <span id="orderCount">0 item</span> <span id="todayDebug" style="font-size:10px;color:var(--text3);font-weight:400"></span></div>
       <div class="filter-row">
-        <input type="text" class="filter-input" id="filterBuyer" placeholder="🔍 Cari pembeli atau item..." oninput="renderOrders()">
-        <select class="form-select" style="width:auto;font-size:13px;padding:8px 10px" id="filterStatus" onchange="renderOrders()">
+        <input type="text" class="filter-input" id="filterBuyer" placeholder="🔍 Cari pembeli atau item...">
+        <select class="form-select" style="width:auto;font-size:13px;padding:8px 10px" id="filterStatus">
           <option value="">Semua</option>
           <option value="unpaid">Belum Bayar</option>
           <option value="paid">Sudah Bayar</option>
@@ -633,6 +633,7 @@ window.switchTab = function(name) {
   const navEl = document.getElementById(navMap[name]);
   if (navEl) navEl.classList.add('active');
 
+  if (name === 'pesanan')   window.renderOrders();
   if (name === 'ringkasan') renderSummary();
   if (name === 'tagihan')   renderBuyerList();
   if (name === 'deposit')   renderDeposits();
@@ -704,7 +705,7 @@ window.togglePaid = async function(firestoreId) {
   }
 };
 
-function renderOrders() {
+window.renderOrders = function renderOrders() {
   const filterBuyerEl  = document.getElementById('filterBuyer');
   const filterStatusEl = document.getElementById('filterStatus');
   const filterBuyer    = filterBuyerEl  ? filterBuyerEl.value.toLowerCase().trim() : '';
@@ -1288,6 +1289,11 @@ document.getElementById('qrisOverlay').addEventListener('click', function(e) {
 applyAdminAccess(); // apply lock state on load
 startListeners();
 renderQris(); // render QRIS tab on load (default tab)
+
+// Filter listeners — pakai addEventListener bukan oninput/onchange inline
+// agar bisa memanggil fungsi dalam ES Module scope
+document.getElementById('filterBuyer').addEventListener('input', () => window.renderOrders());
+document.getElementById('filterStatus').addEventListener('change', () => window.renderOrders());
 
 // Sembunyikan loading overlay setelah listeners terpasang
 setTimeout(() => {
