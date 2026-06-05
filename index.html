@@ -323,6 +323,7 @@
 
     <!-- TAB: TAGIHAN -->
     <div class="tab-panel" id="tab-tagihan">
+      <div id="unpaidBanner"></div>
       <div class="section-title">🧾 Pilih Pembeli</div>
       <div id="buyerList"></div>
       <div id="billPreview"></div>
@@ -781,6 +782,30 @@ function renderBuyerList() {
     if (!o.paid) buyers[o.buyer].unpaid += o.price * o.qty;
   });
 
+  const totalUnpaid = Object.values(buyers).reduce((s, d) => s + d.unpaid, 0);
+  const unpaidBuyerCount = Object.values(buyers).filter(d => d.unpaid > 0).length;
+
+  // Banner rekap semua belum bayar
+  const banner = document.getElementById('unpaidBanner');
+  if (unpaidBuyerCount > 0) {
+    banner.innerHTML = `
+      <div style="background:linear-gradient(135deg,#FFF0EB,#FFE4D9);border:1.5px solid #FFB899;border-radius:var(--radius);padding:14px 16px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div>
+            <div style="font-size:13px;font-weight:800;color:var(--brand)">⏳ ${unpaidBuyerCount} pembeli belum lunas</div>
+            <div style="font-size:20px;font-weight:800;color:var(--brand-dark);font-family:'DM Mono',monospace;margin-top:2px">${rupiah(totalUnpaid)}</div>
+          </div>
+          <div style="font-size:28px">🧾</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" style="flex:1;justify-content:center;background:var(--brand)" onclick="showAllUnpaidBill()">📋 Rekap Semua Tagihan</button>
+          <button class="btn btn-sm" style="flex:1;justify-content:center;background:white;border:1.5px solid var(--brand);color:var(--brand);font-weight:700" onclick="shareAllUnpaidBill()">📤 Share Rekap</button>
+        </div>
+      </div>`;
+  } else {
+    banner.innerHTML = '';
+  }
+
   const buyerDiv = document.getElementById('buyerList');
   if (Object.keys(buyers).length === 0) {
     buyerDiv.innerHTML = `<div class="empty-state"><div class="empty-icon">🧾</div><div class="empty-text">Belum ada pesanan hari ini</div></div>`;
@@ -789,12 +814,12 @@ function renderBuyerList() {
   }
 
   buyerDiv.innerHTML = `<div class="buyer-select">` +
-    Object.entries(buyers).sort((a,b) => b[1].total - a[1].total).map(([name, d]) => `
+    Object.entries(buyers).sort((a,b) => b[1].unpaid - a[1].unpaid || b[1].total - a[1].total).map(([name, d]) => `
       <div class="buyer-option ${selectedBuyer === name ? 'selected' : ''}" onclick="selectBuyer('${name}')">
-        <div class="buyer-avatar">${initials(name)}</div>
+        <div class="buyer-avatar" style="background:${d.unpaid > 0 ? 'var(--brand)' : 'var(--green-dark)'}">${initials(name)}</div>
         <div class="buyer-info">
           <div class="buyer-name">${name}</div>
-          <div class="buyer-total">${d.count} item · ${rupiah(d.total)} · ${d.unpaid > 0 ? '⏳ Belum lunas' : '✅ Lunas'}</div>
+          <div class="buyer-total">${d.count} item · ${rupiah(d.total)} · ${d.unpaid > 0 ? '<span style="color:var(--brand);font-weight:700">⏳ Belum ' + rupiah(d.unpaid) + '</span>' : '✅ Lunas'}</div>
         </div>
         <span style="font-size:18px">→</span>
       </div>
@@ -809,56 +834,110 @@ function selectBuyer(name) {
   renderBill(name);
 }
 
-function renderBill(buyerName) {
-  const buyerOrders = orders.filter(o => o.date === today() && o.buyer === buyerName);
+function buildBillText(buyerName, onlyUnpaid) {
+  const buyerOrders = orders.filter(o => o.date === today() && o.buyer === buyerName && (onlyUnpaid ? !o.paid : true));
+  if (buyerOrders.length === 0) return null;
   const total = buyerOrders.reduce((s, o) => s + o.price * o.qty, 0);
-  const paidTotal = buyerOrders.filter(o => o.paid).reduce((s, o) => s + o.price * o.qty, 0);
-  const remaining = total - paidTotal;
-
   const d = new Date();
   const dateStr = d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
   const timeStr = d.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
 
-  let billText = `🍜 *JAJANYUK*\n`;
-  billText += `━━━━━━━━━━━━━━━━━━━\n`;
-  billText += `📅 ${dateStr}, ${timeStr}\n`;
-  billText += `👤 Pembeli: *${buyerName}*\n`;
-  billText += `━━━━━━━━━━━━━━━━━━━\n`;
-  billText += `*DETAIL PESANAN:*\n`;
-
+  let t = `🍜 *JAJANYUK*\n━━━━━━━━━━━━━━━━━━━\n📅 ${dateStr}, ${timeStr}\n👤 Pembeli: *${buyerName}*\n━━━━━━━━━━━━━━━━━━━\n*DETAIL PESANAN:*\n`;
   buyerOrders.forEach(o => {
-    const subtotal = o.price * o.qty;
-    billText += `• ${o.item}`;
-    if (o.qty > 1) billText += ` (x${o.qty})`;
-    if (o.note) billText += ` [${o.note}]`;
-    billText += `\n  ${rupiah(o.price)}${o.qty > 1 ? ' × ' + o.qty + ' = ' + rupiah(subtotal) : ''}`;
-    billText += o.paid ? ' ✅' : ' ⏳';
-    billText += '\n';
+    const sub = o.price * o.qty;
+    t += `• ${o.item}`;
+    if (o.qty > 1) t += ` (x${o.qty})`;
+    if (o.note) t += ` [${o.note}]`;
+    t += `\n  ${rupiah(o.price)}${o.qty > 1 ? ' × ' + o.qty + ' = ' + rupiah(sub) : ''}`;
+    t += o.paid ? ' ✅' : ' ⏳';
+    t += '\n';
   });
+  t += `━━━━━━━━━━━━━━━━━━━\n💰 TOTAL: *${rupiah(total)}*\n`;
+  t += onlyUnpaid ? `⏳ Status: *BELUM LUNAS*\n` : (buyerOrders.every(o => o.paid) ? `✅ Status: *LUNAS*\n` : `⏳ Ada yang belum lunas\n`);
+  t += `━━━━━━━━━━━━━━━━━━━\nTerima kasih telah berbelanja! 🙏`;
+  return t;
+}
 
-  billText += `━━━━━━━━━━━━━━━━━━━\n`;
-  billText += `💰 TOTAL    : *${rupiah(total)}*\n`;
-  if (paidTotal > 0 && paidTotal < total) {
-    billText += `✅ Sudah Bayar: ${rupiah(paidTotal)}\n`;
-    billText += `⏳ Sisa Tagihan: *${rupiah(remaining)}*\n`;
-  } else if (paidTotal >= total) {
-    billText += `✅ Status   : *LUNAS*\n`;
-  } else {
-    billText += `⏳ Status   : *BELUM LUNAS*\n`;
-  }
-  billText += `━━━━━━━━━━━━━━━━━━━\n`;
-  billText += `Terima kasih telah berbelanja! 🙏`;
+function renderBill(buyerName) {
+  const billText = buildBillText(buyerName, false);
+  if (!billText) return;
 
+  const escaped = billText.replace(/\\/g, '\\\\').replace(/`/g, '\\`');
   document.getElementById('billPreview').innerHTML = `
     <div style="margin-top:16px">
       <div class="section-title">🧾 Preview Tagihan — ${buyerName}</div>
       <div class="bill-preview"><pre>${billText}</pre></div>
       <div class="bill-actions">
-        <button class="btn btn-ghost btn-sm" onclick="copyBill(\`${billText.replace(/`/g, '\\`')}\`)">📋 Copy</button>
-        <button class="btn btn-primary btn-sm" onclick="shareBill(\`${billText.replace(/`/g, '\\`')}\`)">📤 Share / WA</button>
+        <button class="btn btn-ghost btn-sm" onclick="copyBill(\`${escaped}\`)">📋 Copy</button>
+        <button class="btn btn-primary btn-sm" onclick="shareBill(\`${escaped}\`)">📤 Share / WA</button>
       </div>
     </div>
   `;
+}
+
+function buildAllUnpaidText() {
+  const todayOrders = orders.filter(o => o.date === today() && !o.paid);
+  const buyers = [...new Set(todayOrders.map(o => o.buyer))];
+  if (buyers.length === 0) return null;
+
+  const d = new Date();
+  const dateStr = d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+  const timeStr = d.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+
+  let text = `🍜 *JAJANYUK — REKAP TAGIHAN*\n`;
+  text += `📅 ${dateStr}, ${timeStr}\n`;
+  text += `━━━━━━━━━━━━━━━━━━━\n`;
+
+  let grandTotal = 0;
+  buyers.forEach((name, idx) => {
+    const bOrders = todayOrders.filter(o => o.buyer === name);
+    const bTotal = bOrders.reduce((s, o) => s + o.price * o.qty, 0);
+    grandTotal += bTotal;
+    text += `\n👤 *${name}*\n`;
+    bOrders.forEach(o => {
+      const sub = o.price * o.qty;
+      text += `  • ${o.item}`;
+      if (o.qty > 1) text += ` (x${o.qty})`;
+      if (o.note) text += ` [${o.note}]`;
+      text += ` → ${rupiah(sub)}\n`;
+    });
+    text += `  💰 Subtotal: *${rupiah(bTotal)}*\n`;
+    if (idx < buyers.length - 1) text += `  ─────────────────\n`;
+  });
+
+  text += `\n━━━━━━━━━━━━━━━━━━━\n`;
+  text += `⏳ *TOTAL BELUM BAYAR: ${rupiah(grandTotal)}*\n`;
+  text += `(${buyers.length} pembeli)\n`;
+  text += `━━━━━━━━━━━━━━━━━━━\n`;
+  text += `Mohon segera melunasi. Terima kasih! 🙏`;
+  return text;
+}
+
+function showAllUnpaidBill() {
+  const text = buildAllUnpaidText();
+  if (!text) { showToast('Tidak ada tagihan belum bayar', '✅'); return; }
+
+  const escaped = text.replace(/\\/g, '\\\\').replace(/`/g, '\\`');
+  selectedBuyer = null;
+  document.getElementById('buyerList').querySelectorAll('.buyer-option').forEach(el => el.classList.remove('selected'));
+
+  document.getElementById('billPreview').innerHTML = `
+    <div style="margin-top:16px">
+      <div class="section-title" style="color:var(--brand)">⏳ Rekap Semua Tagihan Belum Bayar</div>
+      <div class="bill-preview" style="background:var(--brand-light);border:1px solid #FFB899"><pre>${text}</pre></div>
+      <div class="bill-actions">
+        <button class="btn btn-ghost btn-sm" onclick="copyBill(\`${escaped}\`)">📋 Copy</button>
+        <button class="btn btn-primary btn-sm" onclick="shareBill(\`${escaped}\`)">📤 Share / WA</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('billPreview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function shareAllUnpaidBill() {
+  const text = buildAllUnpaidText();
+  if (!text) { showToast('Tidak ada tagihan belum bayar', '✅'); return; }
+  shareBill(text);
 }
 
 function copyBill(text) {
