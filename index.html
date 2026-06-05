@@ -164,6 +164,20 @@
   .filter-input { flex: 1; padding: 8px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; outline: none; color: var(--text); background: var(--surface); }
   .filter-input:focus { border-color: var(--brand); }
 
+  /* Antrian */
+  .antrian-item { background: var(--surface); border: 1.5px solid var(--amber-light); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 8px; }
+  .antrian-item-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .antrian-item-name { font-size: 14px; font-weight: 700; color: var(--text); }
+  .antrian-item-price { font-size: 14px; font-weight: 700; color: var(--brand); font-family: 'DM Mono', monospace; white-space: nowrap; }
+  .antrian-buyer-row { display: flex; gap: 6px; align-items: center; }
+  .antrian-buyer-input { flex: 1; padding: 7px 10px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; outline: none; color: var(--text); background: var(--surface2); }
+  .antrian-buyer-input:focus { border-color: var(--brand); background: white; }
+  .antrian-send-btn { padding: 7px 12px; background: var(--green-light); color: var(--green-dark); border: none; border-radius: var(--radius-sm); font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; transition: all 0.15s; }
+  .antrian-send-btn:hover { background: var(--green); color: white; }
+  .antrian-del-btn { padding: 7px 10px; background: var(--red-light); color: var(--red); border: none; border-radius: var(--radius-sm); font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .antrian-del-btn:hover { background: var(--red); color: white; }
+  .antrian-sent { opacity: 0.45; pointer-events: none; }
+
   /* Admin / Auth */
   #adminModal { position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9990;display:none;align-items:center;justify-content:center; }
   #adminModal.show { display:flex; }
@@ -224,6 +238,7 @@
       </div>
     </div>
     <div class="nav">
+      <button class="nav-btn locked" id="navAntrian" onclick="switchTab('antrian')"><span class="nav-icon">🗒️</span>Antrian</button>
       <button class="nav-btn locked" id="navPesanan" onclick="switchTab('pesanan')"><span class="nav-icon">📋</span>Pesanan</button>
       <button class="nav-btn locked" id="navDeposit" onclick="switchTab('deposit')"><span class="nav-icon">💰</span>Deposit</button>
       <button class="nav-btn locked" id="navRingkasan" onclick="switchTab('ringkasan')"><span class="nav-icon">📊</span>Ringkasan</button>
@@ -234,6 +249,67 @@
 
   <!-- CONTENT -->
   <div class="content">
+
+    <!-- TAB: ANTRIAN -->
+    <div class="tab-panel" id="tab-antrian">
+
+      <!-- Input Card -->
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="section-title" style="margin-bottom:0">🗒️ Input Antrian</div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm btn-ghost" id="btnAntrianManual" onclick="setAntrianMode('manual')" style="font-size:12px;padding:6px 10px;background:var(--brand);color:white;border-color:var(--brand)">✏️ Manual</button>
+            <button class="btn btn-sm btn-ghost" id="btnAntrianBulk"   onclick="setAntrianMode('bulk')"   style="font-size:12px;padding:6px 10px">📋 Bulk</button>
+          </div>
+        </div>
+
+        <!-- Manual -->
+        <div id="antrianFormManual">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nama Item</label>
+              <input type="text" class="form-input" id="antrianItem" placeholder="cth: Nasi Goreng" autocomplete="off">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Harga (Rp)</label>
+              <input type="number" class="form-input" id="antrianPrice" placeholder="15000" min="0">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Qty</label>
+              <input type="number" class="form-input" id="antrianQty" placeholder="1" min="1" value="1">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Catatan (opsional)</label>
+              <input type="text" class="form-input note-input" id="antrianNote" placeholder="cth: pedas, tanpa bawang">
+            </div>
+          </div>
+          <button class="btn btn-primary" id="btnAddAntrian" onclick="addAntrian()">➕ Tambah ke Antrian</button>
+        </div>
+
+        <!-- Bulk -->
+        <div id="antrianFormBulk" style="display:none">
+          <div class="form-group">
+            <label class="form-label">Format: <span style="font-family:'DM Mono',monospace;font-size:11px;background:var(--surface2);padding:2px 6px;border-radius:4px">Item - Harga - Nama</span></label>
+            <div style="font-size:11px;color:var(--text3);margin-bottom:8px">Nama pembeli boleh dikosongkan (isi nanti). Satu baris = satu item.</div>
+            <textarea id="antrianBulkInput" class="form-input" rows="5" style="font-family:'DM Mono',monospace;font-size:13px;resize:vertical;line-height:1.7" placeholder="Nasi Goreng - 15000&#10;Es Teh - 5000&#10;Mie Ayam - 12000 - Budi"></textarea>
+          </div>
+          <div id="antrianBulkPreview" style="display:none;margin-bottom:12px"></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center" onclick="previewAntrianBulk()">👁 Preview</button>
+            <button class="btn btn-primary" style="flex:1;justify-content:center" id="btnSubmitAntrianBulk" onclick="submitAntrianBulk()">📥 Masukkan Semua</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Daftar Antrian -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="section-title" style="margin-bottom:0">⏳ Menunggu Pembeli <span id="antrianCount" style="font-size:13px;font-weight:500;color:var(--text2)">0 item</span></div>
+        <button class="btn btn-sm btn-ghost" id="btnClearAntrian" onclick="clearSentAntrian()" style="font-size:11px;display:none">🧹 Bersihkan Terkirim</button>
+      </div>
+      <div id="antrianList"></div>
+    </div>
 
     <!-- TAB: PESANAN -->
     <div class="tab-panel" id="tab-pesanan">
@@ -463,12 +539,14 @@ const db = getFirestore(app);
 const ordersCol   = collection(db, 'orders');
 const depositsCol = collection(db, 'deposits');
 const settingsCol = collection(db, 'settings');
+const antrianCol  = collection(db, 'antrian');
 
 // ============================================================
 // STATE
 // ============================================================
 let orders         = [];
 let deposits       = [];
+let antrian        = [];
 let currentPeriod  = 'daily';
 let selectedBuyer  = null;
 let qrisOverlayNominal = '';
@@ -537,19 +615,17 @@ function checkPin() {
 }
 
 function applyAdminAccess() {
-  const adminTabs = ['navPesanan', 'navDeposit', 'navRingkasan', 'navTagihan'];
+  const adminTabs = ['navAntrian', 'navPesanan', 'navDeposit', 'navRingkasan', 'navTagihan'];
   const badge = document.getElementById('adminBadge');
   if (isAdmin) {
     adminTabs.forEach(id => document.getElementById(id).classList.remove('locked'));
     badge.textContent = '🛡️ Admin';
     badge.className = 'admin-badge is-admin';
-    // Switch ke tab pesanan setelah login
-    switchTab('pesanan');
+    switchTab('antrian');
   } else {
     adminTabs.forEach(id => document.getElementById(id).classList.add('locked'));
     badge.textContent = '👤 User';
     badge.className = 'admin-badge is-user';
-    // Paksa kembali ke tab QRIS
     switchTab('qris');
   }
 }
@@ -612,6 +688,12 @@ function startListeners() {
     deposits = snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
     renderDeposits();
   }, err => console.error('Deposits listener error:', err));
+
+  // Antrian — listen realtime
+  onSnapshot(query(antrianCol, orderBy('createdAt', 'asc')), snap => {
+    antrian = snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
+    renderAntrian();
+  }, err => console.error('Antrian listener error:', err));
 }
 
 // ============================================================
@@ -619,7 +701,7 @@ function startListeners() {
 // ============================================================
 window.switchTab = function(name) {
   // Guard: non-admin cannot switch to locked tabs
-  const adminOnlyTabs = ['pesanan', 'deposit', 'ringkasan', 'tagihan'];
+  const adminOnlyTabs = ['antrian', 'pesanan', 'deposit', 'ringkasan', 'tagihan'];
   if (!isAdmin && adminOnlyTabs.includes(name)) {
     showToast('Login sebagai Admin untuk akses tab ini', '🔒');
     return;
@@ -629,10 +711,11 @@ window.switchTab = function(name) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
 
-  const navMap = { pesanan: 'navPesanan', deposit: 'navDeposit', ringkasan: 'navRingkasan', tagihan: 'navTagihan', qris: 'navQris' };
+  const navMap = { antrian: 'navAntrian', pesanan: 'navPesanan', deposit: 'navDeposit', ringkasan: 'navRingkasan', tagihan: 'navTagihan', qris: 'navQris' };
   const navEl = document.getElementById(navMap[name]);
   if (navEl) navEl.classList.add('active');
 
+  if (name === 'antrian')   renderAntrian();
   if (name === 'pesanan')   window.renderOrders();
   if (name === 'ringkasan') renderSummary();
   if (name === 'tagihan')   renderBuyerList();
@@ -854,6 +937,240 @@ window.submitBulk = async function() {
     btn.textContent = '📥 Masukkan Semua';
   }
 };
+
+// ============================================================
+// ANTRIAN — CRUD + SYNC KE PESANAN
+// ============================================================
+
+window.setAntrianMode = function(mode) {
+  const isManual = mode === 'manual';
+  document.getElementById('antrianFormManual').style.display = isManual ? 'block' : 'none';
+  document.getElementById('antrianFormBulk').style.display   = isManual ? 'none'  : 'block';
+  document.getElementById('btnAntrianManual').style.cssText  = isManual
+    ? 'font-size:12px;padding:6px 10px;background:var(--brand);color:white;border-color:var(--brand)'
+    : 'font-size:12px;padding:6px 10px';
+  document.getElementById('btnAntrianBulk').style.cssText = !isManual
+    ? 'font-size:12px;padding:6px 10px;background:var(--brand);color:white;border-color:var(--brand)'
+    : 'font-size:12px;padding:6px 10px';
+  if (!isManual) document.getElementById('antrianBulkPreview').style.display = 'none';
+};
+
+window.addAntrian = async function() {
+  const item  = document.getElementById('antrianItem').value.trim();
+  const price = parseFloat(document.getElementById('antrianPrice').value);
+  const qty   = parseInt(document.getElementById('antrianQty').value) || 1;
+  const note  = document.getElementById('antrianNote').value.trim();
+  if (!item || !price) { showToast('Lengkapi nama item dan harga!', '⚠️'); return; }
+
+  const btn = document.getElementById('btnAddAntrian');
+  btn.disabled = true;
+  btn.textContent = '⏳ Menyimpan...';
+  setSyncBadge('loading');
+  try {
+    await addDoc(antrianCol, { item, price, qty, note, buyer: '', date: today(), sent: false, createdAt: Date.now() });
+    document.getElementById('antrianItem').value  = '';
+    document.getElementById('antrianPrice').value = '';
+    document.getElementById('antrianQty').value   = '1';
+    document.getElementById('antrianNote').value  = '';
+    showToast(item + ' ditambahkan ke antrian!');
+    setSyncBadge('ok');
+  } catch(e) {
+    showToast('Gagal menyimpan!', '❌'); setSyncBadge('err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '➕ Tambah ke Antrian';
+  }
+};
+
+function parseAntrianBulkLine(line) {
+  const raw = line.trim();
+  if (!raw) return null;
+  const parts = raw.split(/\s*-\s*/);
+  if (parts.length < 2) return { error: 'Format salah: "' + raw + '"' };
+
+  let item, priceRaw, buyer = '';
+  if (parts.length === 2) {
+    // Item - Harga (tanpa nama)
+    item     = parts[0].trim();
+    priceRaw = parts[1].trim();
+  } else {
+    // Item - Harga - Nama  atau  Item - sub - Harga - Nama
+    // Cek apakah bagian terakhir adalah angka atau bukan
+    const lastPart       = parts[parts.length - 1].trim();
+    const secondLastPart = parts[parts.length - 2].trim();
+    const secondLastNum  = parseFloat(secondLastPart.replace(/[Rp\s\.]/g, '').replace(',', '.'));
+    if (!isNaN(secondLastNum) && secondLastNum > 0) {
+      // terakhir = nama pembeli
+      buyer    = lastPart;
+      priceRaw = secondLastPart;
+      item     = parts.slice(0, parts.length - 2).join(' - ').trim();
+    } else {
+      // tidak ada nama, bagian terakhir = harga
+      priceRaw = lastPart;
+      item     = parts.slice(0, parts.length - 1).join(' - ').trim();
+    }
+  }
+
+  if (!item) return { error: 'Nama item kosong: "' + raw + '"' };
+  const priceClean = priceRaw.replace(/[Rp\s\.]/g, '').replace(',', '.');
+  const price      = parseFloat(priceClean);
+  if (isNaN(price) || price <= 0) return { error: 'Harga tidak valid "' + priceRaw + '"' };
+  return { item, price, buyer, raw };
+}
+
+window.previewAntrianBulk = function() {
+  const lines   = document.getElementById('antrianBulkInput').value.split('\n').filter(l => l.trim());
+  if (!lines.length) { showToast('Input masih kosong!', '⚠️'); return; }
+  const results = lines.map(parseAntrianBulkLine).filter(Boolean);
+  const valid   = results.filter(r => !r.error);
+  const invalid = results.filter(r => r.error);
+
+  let html = '<div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px">Preview: <span style="color:var(--green-dark)">' + valid.length + ' valid</span>'
+    + (invalid.length > 0 ? ' · <span style="color:var(--red)">' + invalid.length + ' error</span>' : '') + '</div>';
+  results.forEach(r => {
+    if (r.error) {
+      html += '<div class="bulk-row invalid"><div class="bulk-row-info"><div class="bulk-row-name">⚠️ Error</div><div class="bulk-row-buyer">' + r.error + '</div></div></div>';
+    } else {
+      html += '<div class="bulk-row valid"><div class="bulk-row-info"><div class="bulk-row-name">' + r.item + '</div><div class="bulk-row-buyer">' + (r.buyer ? '👤 ' + r.buyer : '— belum ada nama') + '</div></div><div class="bulk-row-price">' + rupiah(r.price) + '</div></div>';
+    }
+  });
+
+  const preview = document.getElementById('antrianBulkPreview');
+  preview.innerHTML = html;
+  preview.style.display = 'block';
+};
+
+window.submitAntrianBulk = async function() {
+  const lines   = document.getElementById('antrianBulkInput').value.split('\n').filter(l => l.trim());
+  if (!lines.length) { showToast('Input masih kosong!', '⚠️'); return; }
+  const results = lines.map(parseAntrianBulkLine).filter(Boolean);
+  const valid   = results.filter(r => !r.error);
+  const invalid = results.filter(r => r.error);
+  if (!valid.length) { showToast('Tidak ada data valid!', '⚠️'); return; }
+  if (invalid.length > 0 && !confirm(invalid.length + ' baris error akan dilewati. Lanjut masukkan ' + valid.length + ' item?')) return;
+
+  const btn = document.getElementById('btnSubmitAntrianBulk');
+  btn.disabled = true;
+  btn.textContent = '⏳ Menyimpan...';
+  setSyncBadge('loading');
+  try {
+    const now = Date.now();
+    await Promise.all(valid.map((r, i) =>
+      addDoc(antrianCol, { item: r.item, price: r.price, qty: 1, note: '', buyer: r.buyer || '', date: today(), sent: !!r.buyer, createdAt: now + i })
+    ));
+    // Item yang sudah ada nama langsung juga masuk ke orders
+    const withBuyer = valid.filter(r => r.buyer);
+    if (withBuyer.length) {
+      await Promise.all(withBuyer.map((r, i) =>
+        addDoc(ordersCol, { buyer: r.buyer, item: r.item, price: r.price, qty: 1, note: '', paid: false, date: today(), createdAt: now + i })
+      ));
+    }
+    document.getElementById('antrianBulkInput').value = '';
+    document.getElementById('antrianBulkPreview').style.display = 'none';
+    showToast(valid.length + ' item ditambahkan ke antrian! 🎉');
+    setSyncBadge('ok');
+  } catch(e) {
+    showToast('Gagal menyimpan bulk!', '❌'); setSyncBadge('err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '📥 Masukkan Semua';
+  }
+};
+
+// Kirim satu antrian item ke Pesanan dengan nama pembeli yang diisi
+window.sendAntrianToOrder = async function(firestoreId) {
+  const inputEl = document.getElementById('antrianBuyerInput-' + firestoreId);
+  const buyer   = inputEl ? inputEl.value.trim() : '';
+  if (!buyer) { showToast('Isi nama pembeli dulu!', '⚠️'); inputEl && inputEl.focus(); return; }
+
+  const a = antrian.find(a => a.firestoreId === firestoreId);
+  if (!a) return;
+
+  setSyncBadge('loading');
+  try {
+    // Tambah ke orders
+    await addDoc(ordersCol, { buyer, item: a.item, price: a.price, qty: a.qty || 1, note: a.note || '', paid: false, date: today(), createdAt: Date.now() });
+    // Tandai antrian sebagai sent + simpan nama buyer
+    await updateDoc(doc(db, 'antrian', firestoreId), { sent: true, buyer });
+    showToast(a.item + ' → ' + buyer + ' dikirim ke Pesanan! ✓');
+    setSyncBadge('ok');
+  } catch(e) {
+    showToast('Gagal kirim!', '❌'); setSyncBadge('err');
+  }
+};
+
+window.deleteAntrian = async function(firestoreId) {
+  if (!confirm('Hapus item antrian ini?')) return;
+  setSyncBadge('loading');
+  try {
+    await deleteDoc(doc(db, 'antrian', firestoreId));
+    showToast('Item antrian dihapus', '🗑️');
+    setSyncBadge('ok');
+  } catch(e) {
+    showToast('Gagal hapus!', '❌'); setSyncBadge('err');
+  }
+};
+
+window.clearSentAntrian = async function() {
+  const sent = antrian.filter(a => a.sent);
+  if (!sent.length) { showToast('Tidak ada item terkirim', 'ℹ️'); return; }
+  if (!confirm('Hapus ' + sent.length + ' item yang sudah terkirim ke Pesanan?')) return;
+  setSyncBadge('loading');
+  try {
+    await Promise.all(sent.map(a => deleteDoc(doc(db, 'antrian', a.firestoreId))));
+    showToast(sent.length + ' item antrian dibersihkan!');
+    setSyncBadge('ok');
+  } catch(e) {
+    showToast('Gagal bersihkan!', '❌'); setSyncBadge('err');
+  }
+};
+
+function renderAntrian() {
+  const list      = document.getElementById('antrianList');
+  const countEl   = document.getElementById('antrianCount');
+  const clearBtn  = document.getElementById('btnClearAntrian');
+  if (!list) return;
+
+  const pending = antrian.filter(a => !a.sent);
+  const sent    = antrian.filter(a => a.sent);
+
+  if (countEl) countEl.textContent = pending.length + ' item';
+  if (clearBtn) clearBtn.style.display = sent.length ? 'inline-flex' : 'none';
+
+  if (!antrian.length) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🗒️</div><div class="empty-text">Belum ada item di antrian</div></div>';
+    return;
+  }
+
+  const renderItem = (a) => {
+    const sentClass = a.sent ? ' antrian-sent' : '';
+    const buyerVal  = a.buyer ? a.buyer : '';
+    return `
+      <div class="antrian-item${sentClass}" id="antrianItem-${a.firestoreId}">
+        <div class="antrian-item-top">
+          <div>
+            <div class="antrian-item-name">${a.item || '-'}${a.qty > 1 ? ' <span style="font-size:12px;color:var(--text3)">x' + a.qty + '</span>' : ''}</div>
+            ${a.note ? '<div style="font-size:11px;color:var(--text3);margin-top:2px">📝 ' + a.note + '</div>' : ''}
+            ${a.sent ? '<div style="font-size:11px;font-weight:700;color:var(--green-dark);margin-top:4px">✓ Terkirim ke: ' + a.buyer + '</div>' : ''}
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div class="antrian-item-price">${rupiah((a.price || 0) * (a.qty || 1))}</div>
+            ${!a.sent ? '<button class="antrian-del-btn" onclick="deleteAntrian(\'' + a.firestoreId + '\')">✕</button>' : ''}
+          </div>
+        </div>
+        ${!a.sent ? `
+        <div class="antrian-buyer-row">
+          <input type="text" class="antrian-buyer-input" id="antrianBuyerInput-${a.firestoreId}"
+            placeholder="Ketik nama pembeli..." value="${buyerVal}" autocomplete="off"
+            onkeydown="if(event.key==='Enter') sendAntrianToOrder('${a.firestoreId}')">
+          <button class="antrian-send-btn" onclick="sendAntrianToOrder('${a.firestoreId}')">✓ Kirim</button>
+        </div>` : ''}
+      </div>`;
+  };
+
+  list.innerHTML = pending.map(renderItem).join('') +
+    (sent.length ? '<div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px">Sudah Terkirim</div>' + sent.map(renderItem).join('') : '');
+}
 
 // ============================================================
 // DEPOSIT — CRUD
