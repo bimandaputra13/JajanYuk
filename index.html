@@ -166,6 +166,17 @@
 
   .note-input { font-size: 12px; padding: 7px 10px; }
 
+  /* BULK PREVIEW */
+  .bulk-row { display:flex; align-items:center; justify-content:space-between; padding:7px 10px; border-radius:var(--radius-sm); font-size:13px; margin-bottom:4px; gap:8px; }
+  .bulk-row.valid { background:var(--green-light); border:1px solid #86EFAC; }
+  .bulk-row.invalid { background:var(--red-light); border:1px solid #FCA5A5; }
+  .bulk-row-info { flex:1; min-width:0; }
+  .bulk-row-name { font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .bulk-row-buyer { font-size:11px; color:var(--text2); }
+  .bulk-row-price { font-family:'DM Mono',monospace; font-weight:700; font-size:13px; white-space:nowrap; }
+  .bulk-row.valid .bulk-row-price { color:var(--green-dark); }
+  .bulk-row.invalid .bulk-row-price { color:var(--red); }
+
   /* QRIS */
   .qris-upload-zone { display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed var(--border); border-radius: var(--radius); padding: 32px 20px; cursor: pointer; transition: all 0.2s; text-align: center; background: var(--surface2); }
   .qris-upload-zone:hover { border-color: var(--brand); background: var(--brand-light); }
@@ -237,34 +248,56 @@
 
       <!-- Form Tambah Pesanan -->
       <div class="card">
-        <div class="section-title">➕ Tambah Pesanan</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Nama Pembeli</label>
-            <input type="text" class="form-input" id="inBuyer" placeholder="cth: Budi" autocomplete="off">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Nama Item</label>
-            <input type="text" class="form-input" id="inItem" placeholder="cth: Nasi Goreng" autocomplete="off">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="section-title" style="margin-bottom:0">➕ Tambah Pesanan</div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm btn-ghost" id="btnModeManual" onclick="setInputMode('manual')" style="font-size:12px;padding:6px 10px;background:var(--brand);color:white;border-color:var(--brand)">✏️ Manual</button>
+            <button class="btn btn-sm btn-ghost" id="btnModeBulk" onclick="setInputMode('bulk')" style="font-size:12px;padding:6px 10px">📋 Bulk</button>
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Harga (Rp)</label>
-            <input type="number" class="form-input" id="inPrice" placeholder="15000" min="0">
+
+        <!-- Manual Form -->
+        <div id="formManual">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nama Pembeli</label>
+              <input type="text" class="form-input" id="inBuyer" placeholder="cth: Budi" autocomplete="off">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nama Item</label>
+              <input type="text" class="form-input" id="inItem" placeholder="cth: Nasi Goreng" autocomplete="off">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Harga (Rp)</label>
+              <input type="number" class="form-input" id="inPrice" placeholder="15000" min="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Qty</label>
+              <input type="number" class="form-input" id="inQty" placeholder="1" min="1" value="1">
+            </div>
           </div>
           <div class="form-group">
-            <label class="form-label">Qty</label>
-            <input type="number" class="form-input" id="inQty" placeholder="1" min="1" value="1">
+            <label class="form-label">Catatan (opsional)</label>
+            <input type="text" class="form-input note-input" id="inNote" placeholder="cth: pedas level 2, tanpa bawang...">
+          </div>
+          <button class="btn btn-primary" onclick="addOrder()">➕ Tambah Pesanan</button>
+        </div>
+
+        <!-- Bulk Form -->
+        <div id="formBulk" style="display:none">
+          <div class="form-group">
+            <label class="form-label">Format: <span style="font-family:'DM Mono',monospace;font-size:11px;background:var(--surface2);padding:2px 6px;border-radius:4px">nama item - harga - nama pembeli</span></label>
+            <div style="font-size:11px;color:var(--text3);margin-bottom:8px">Satu baris = satu pesanan. Harga boleh pakai titik/koma atau tanpa.</div>
+            <textarea id="bulkInput" class="form-input" rows="6" style="font-family:'DM Mono',monospace;font-size:13px;resize:vertical;line-height:1.7" placeholder="Nasi Goreng - 15000 - Budi&#10;Es Teh - 5000 - Siti&#10;Mie Ayam - 12000 - Budi&#10;Bakso - 18000 - Rina"></textarea>
+          </div>
+          <div id="bulkPreview" style="display:none;margin-bottom:12px"></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center" onclick="previewBulk()">👁 Preview</button>
+            <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="submitBulk()">📥 Masukkan Semua</button>
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Catatan (opsional)</label>
-          <input type="text" class="form-input note-input" id="inNote" placeholder="cth: pedas level 2, tanpa bawang...">
-        </div>
-        <button class="btn btn-primary" onclick="addOrder()">
-          ➕ Tambah Pesanan
-        </button>
       </div>
 
       <!-- Filter & List Pesanan -->
@@ -500,6 +533,111 @@ function addOrder() {
 
   renderOrders();
   showToast(item + ' ditambahkan!');
+}
+
+function setInputMode(mode) {
+  const isManual = mode === 'manual';
+  document.getElementById('formManual').style.display = isManual ? 'block' : 'none';
+  document.getElementById('formBulk').style.display = isManual ? 'none' : 'block';
+  document.getElementById('btnModeManual').style.cssText = isManual
+    ? 'font-size:12px;padding:6px 10px;background:var(--brand);color:white;border-color:var(--brand)'
+    : 'font-size:12px;padding:6px 10px';
+  document.getElementById('btnModeBulk').style.cssText = !isManual
+    ? 'font-size:12px;padding:6px 10px;background:var(--brand);color:white;border-color:var(--brand)'
+    : 'font-size:12px;padding:6px 10px';
+  if (!isManual) document.getElementById('bulkPreview').style.display = 'none';
+}
+
+function parseBulkLine(line) {
+  const raw = line.trim();
+  if (!raw) return null;
+  // Split by ' - ' or '-' as separator, allowing spaces
+  const parts = raw.split(/\s*-\s*/);
+  if (parts.length < 3) return { error: `Format salah: "${raw}"` };
+
+  const item = parts[0].trim();
+  // Join middle parts in case item name has dashes, price is last before buyer
+  // Actually: item - price - buyer format strictly
+  const buyer = parts[parts.length - 1].trim();
+  const priceRaw = parts[parts.length - 2].trim();
+  // item might be parts[0..n-3] joined
+  const itemName = parts.slice(0, parts.length - 2).join(' - ').trim();
+
+  if (!itemName) return { error: `Nama item kosong: "${raw}"` };
+  if (!buyer) return { error: `Nama pembeli kosong: "${raw}"` };
+
+  // Parse price: remove dots, commas, Rp prefix, spaces
+  const priceClean = priceRaw.replace(/[Rp\s\.]/g, '').replace(',', '.');
+  const price = parseFloat(priceClean);
+  if (isNaN(price) || price <= 0) return { error: `Harga tidak valid "${priceRaw}": "${raw}"` };
+
+  return { item: itemName, price, buyer, raw };
+}
+
+function previewBulk() {
+  const lines = document.getElementById('bulkInput').value.split('\n').filter(l => l.trim());
+  if (lines.length === 0) { showToast('Input masih kosong!', '⚠️'); return; }
+
+  const results = lines.map(parseBulkLine).filter(Boolean);
+  const valid = results.filter(r => !r.error);
+  const invalid = results.filter(r => r.error);
+
+  let html = `<div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px">
+    Preview: <span style="color:var(--green-dark)">${valid.length} valid</span>${invalid.length > 0 ? ` · <span style="color:var(--red)">${invalid.length} error</span>` : ''}
+  </div>`;
+
+  results.forEach(r => {
+    if (r.error) {
+      html += `<div class="bulk-row invalid"><div class="bulk-row-info"><div class="bulk-row-name">⚠️ Error</div><div class="bulk-row-buyer">${r.error}</div></div></div>`;
+    } else {
+      html += `<div class="bulk-row valid">
+        <div class="bulk-row-info">
+          <div class="bulk-row-name">${r.item}</div>
+          <div class="bulk-row-buyer">👤 ${r.buyer}</div>
+        </div>
+        <div class="bulk-row-price">${rupiah(r.price)}</div>
+      </div>`;
+    }
+  });
+
+  const preview = document.getElementById('bulkPreview');
+  preview.innerHTML = html;
+  preview.style.display = 'block';
+}
+
+function submitBulk() {
+  const lines = document.getElementById('bulkInput').value.split('\n').filter(l => l.trim());
+  if (lines.length === 0) { showToast('Input masih kosong!', '⚠️'); return; }
+
+  const results = lines.map(parseBulkLine).filter(Boolean);
+  const valid = results.filter(r => !r.error);
+  const invalid = results.filter(r => r.error);
+
+  if (valid.length === 0) { showToast('Tidak ada data valid!', '⚠️'); return; }
+
+  if (invalid.length > 0) {
+    if (!confirm(`${invalid.length} baris punya format salah dan akan dilewati. Lanjut masukkan ${valid.length} pesanan yang valid?`)) return;
+  }
+
+  valid.forEach(r => {
+    orders.push({
+      id: generateId(),
+      buyer: r.buyer,
+      item: r.item,
+      price: r.price,
+      qty: 1,
+      note: '',
+      paid: false,
+      date: today(),
+      createdAt: Date.now()
+    });
+  });
+
+  saveData(DB_ORDERS, orders);
+  document.getElementById('bulkInput').value = '';
+  document.getElementById('bulkPreview').style.display = 'none';
+  renderOrders();
+  showToast(`${valid.length} pesanan berhasil ditambahkan! 🎉`);
 }
 
 function deleteOrder(id) {
