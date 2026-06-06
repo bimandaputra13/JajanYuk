@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JajanYuk</title>
+<title>JajanYuk - Pencatatan Penjualan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -236,6 +236,46 @@
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
   .spin { display:inline-block; animation: spin 1s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Sort button */
+  .sort-btn { display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:12px;font-weight:700;background:var(--surface);color:var(--text2);cursor:pointer;font-family:inherit;transition:all 0.15s;white-space:nowrap; }
+  .sort-btn:hover { border-color:var(--brand);color:var(--brand);background:var(--brand-light); }
+  .sort-btn.active { border-color:var(--brand);color:var(--brand);background:var(--brand-light); }
+
+  /* PAID highlight — bright green glow */
+  .order-item.paid {
+    background: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%) !important;
+    border-color: #4ADE80 !important;
+    box-shadow: 0 0 0 2px rgba(34,197,94,0.25), 0 2px 8px rgba(34,197,94,0.15);
+    position: relative;
+  }
+  .order-item.paid::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, rgba(74,222,128,0.12) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .order-item.paid .order-item-name { color: #15803D; }
+  .order-item.paid .order-item-price { color: #15803D; }
+
+  /* buyer-option paid highlight */
+  .buyer-option.all-paid {
+    background: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%);
+    border-color: #4ADE80;
+    box-shadow: 0 0 0 2px rgba(34,197,94,0.2);
+  }
+  .buyer-option.all-paid .buyer-avatar { background: var(--green-dark) !important; }
+
+  /* summary buyer row paid highlight */
+  .summary-buyer-row.all-paid {
+    background: linear-gradient(135deg, #DCFCE7, #BBF7D0);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    margin: -4px -6px;
+    box-shadow: 0 0 0 1.5px rgba(34,197,94,0.35);
+  }
 </style>
 </head>
 <body>
@@ -243,7 +283,7 @@
 <!-- Loading Overlay -->
 <div id="loadingOverlay">
   <div class="load-icon">🍜</div>
-  <div class="load-text">Menghubungkan…</div>
+  <div class="load-text">Menghubungkan ke Firestore…</div>
 </div>
 
 <div class="app">
@@ -254,6 +294,7 @@
         <div class="logo-icon">🍜</div>
         <div>
           <div class="logo-text">JajanYuk</div>
+          <div class="logo-sub">Pencatatan Penjualan</div>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
@@ -423,12 +464,13 @@
           <span class="active-filter-badge" id="pesananFilterBadge" style="display:none">Difilter</span>
         </div>
         <div class="filter-row" style="margin-bottom:8px">
-          <input type="text" class="filter-input" id="filterBuyer" placeholder="🔍 Cari pembeli atau item...">
+          <input type="text" class="filter-input" id="filterBuyer" placeholder="🔍 Cari nama pembeli...">
           <select class="form-select" style="width:auto;font-size:13px;padding:8px 10px;flex-shrink:0" id="filterStatus">
             <option value="">Semua</option>
             <option value="unpaid">Belum Bayar</option>
             <option value="paid">Sudah Bayar</option>
           </select>
+          <button class="sort-btn active" id="pesananSortBtn" onclick="togglePesananSort()" title="Urutkan nama pembeli">A↑Z</button>
         </div>
         <div class="date-shortcut-row" style="margin-bottom:6px">
           <button class="date-shortcut active" id="pesananShortcutToday" onclick="setPesananDateFilter('today',this)">Hari Ini</button>
@@ -525,7 +567,13 @@
         </div>
       </div>
       <div id="unpaidBanner"></div>
-      <div class="section-title">🧾 Pilih Pembeli</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div class="section-title" style="margin-bottom:0">🧾 Pilih Pembeli</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="text" class="filter-input" id="filterTagihanBuyer" placeholder="🔍 Cari nama..." style="width:130px;font-size:12px;padding:7px 10px">
+          <button class="sort-btn active" id="tagihanSortBtn" onclick="toggleTagihanSort()" title="Urutkan nama pembeli">A↑Z</button>
+        </div>
+      </div>
       <div id="buyerList"></div>
       <div id="billPreview"></div>
     </div>
@@ -659,6 +707,11 @@ let qrisOverlayNominal = '';
 let antrianDateMode  = 'today';
 let pesananDateMode  = 'today';
 let tagihanDateMode  = 'today';
+
+// Sort state
+let pesananSortMode  = 'asc';   // 'asc' | 'desc' | 'default'
+let tagihanSortMode  = 'asc';
+let ringSortMode     = 'asc';
 
 // ============================================================
 // ADMIN STATE
@@ -957,6 +1010,34 @@ window.togglePaid = async function(firestoreId) {
   }
 };
 
+window.togglePesananSort = function() {
+  pesananSortMode = pesananSortMode === 'asc' ? 'desc' : 'asc';
+  const btn = document.getElementById('pesananSortBtn');
+  if (btn) {
+    btn.textContent = pesananSortMode === 'asc' ? 'A↑Z' : 'Z↓A';
+    btn.classList.toggle('active', true);
+  }
+  window.renderOrders();
+};
+
+window.toggleTagihanSort = function() {
+  tagihanSortMode = tagihanSortMode === 'asc' ? 'desc' : 'asc';
+  const btn = document.getElementById('tagihanSortBtn');
+  if (btn) {
+    btn.textContent = tagihanSortMode === 'asc' ? 'A↑Z' : 'Z↓A';
+  }
+  window.renderBuyerList();
+};
+
+window.toggleRingSummarySort = function() {
+  ringSortMode = ringSortMode === 'asc' ? 'desc' : 'asc';
+  const btn = document.getElementById('ringSortBtn');
+  if (btn) {
+    btn.textContent = ringSortMode === 'asc' ? 'A↑Z' : 'Z↓A';
+  }
+  renderSummary();
+};
+
 window.renderOrders = function renderOrders() {
   const filterBuyerEl  = document.getElementById('filterBuyer');
   const filterStatusEl = document.getElementById('filterStatus');
@@ -967,17 +1048,24 @@ window.renderOrders = function renderOrders() {
   const dateRange = getFilterDates(pesananDateMode, 'pesananDateFrom', 'pesananDateTo');
   let filtered = filterByDateRange(orders, dateRange);
 
-  // Terapkan search: cocokkan nama pembeli atau nama item
+  // Terapkan search: cocokkan nama pembeli saja
   if (filterBuyer) {
     filtered = filtered.filter(o =>
-      (o.buyer || '').toLowerCase().includes(filterBuyer) ||
-      (o.item  || '').toLowerCase().includes(filterBuyer)
+      (o.buyer || '').toLowerCase().includes(filterBuyer)
     );
   }
 
   // Terapkan filter status
   if (filterStatus === 'paid')   filtered = filtered.filter(o => o.paid);
   if (filterStatus === 'unpaid') filtered = filtered.filter(o => !o.paid);
+
+  // Sort by buyer name ASC/DESC, then by date
+  filtered = filtered.slice().sort((a, b) => {
+    const na = (a.buyer || '').toLowerCase();
+    const nb = (b.buyer || '').toLowerCase();
+    if (na !== nb) return pesananSortMode === 'asc' ? na.localeCompare(nb, 'id') : nb.localeCompare(na, 'id');
+    return (b.createdAt || 0) - (a.createdAt || 0);
+  });
 
   // Update counter
   document.getElementById('orderCount').textContent = filtered.length + ' item';
@@ -997,7 +1085,7 @@ window.renderOrders = function renderOrders() {
     return;
   }
 
-  list.innerHTML = filtered.slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).map(o => `
+  list.innerHTML = filtered.map(o => `
     <div class="order-item ${o.paid ? 'paid' : ''}">
       <div class="order-item-info">
         <div class="order-item-name">
@@ -1523,12 +1611,36 @@ function renderSummary() {
         </div>`).join('')}
     </div>` : ''}
     ${Object.keys(buyerBreakdown).length > 0 ? `<div class="card">
-      <div class="section-title" style="font-size:13px;margin-bottom:10px">👥 Per Pembeli</div>
-      ${Object.entries(buyerBreakdown).sort((a,b) => b[1].total - a[1].total).map(([name, d]) => `
-        <div class="flex justify-between items-center" style="padding:8px 0;border-bottom:1px solid var(--border)">
-          <div><div style="font-size:13px;font-weight:600">${name}</div><div style="font-size:11px;color:var(--text3)">${d.count} pesanan · Lunas ${rupiah(d.paid)}</div></div>
-          <div style="font-size:13px;font-weight:700;font-family:'DM Mono',monospace">${rupiah(d.total)}</div>
-        </div>`).join('')}
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="section-title" style="font-size:13px;margin-bottom:0">👥 Per Pembeli</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="text" class="filter-input" id="filterRingBuyer" placeholder="🔍 Nama..." style="width:110px;font-size:12px;padding:6px 10px" oninput="renderSummary()">
+          <button class="sort-btn active" id="ringSortBtn" onclick="toggleRingSummarySort()" title="Urutkan nama">A↑Z</button>
+        </div>
+      </div>
+      <div id="ringBuyerRows">
+      ${(() => {
+        // read filter & sort each render
+        const search = document.getElementById('filterRingBuyer') ? document.getElementById('filterRingBuyer').value.toLowerCase().trim() : '';
+        let entries = Object.entries(buyerBreakdown);
+        if (search) entries = entries.filter(([n]) => n.toLowerCase().includes(search));
+        entries = entries.sort((a, b) => {
+          const na = a[0].toLowerCase(); const nb = b[0].toLowerCase();
+          return ringSortMode === 'asc' ? na.localeCompare(nb, 'id') : nb.localeCompare(na, 'id');
+        });
+        if (!entries.length) return '<div style="text-align:center;color:var(--text3);font-size:13px;padding:12px 0">Tidak ada data</div>';
+        return entries.map(([name, d], i) => {
+          const isAllPaid = d.paid >= d.total;
+          return `<div class="flex justify-between items-center summary-buyer-row ${isAllPaid ? 'all-paid' : ''}" style="padding:8px ${isAllPaid ? '6px' : '0'};border-bottom:${i < entries.length-1 ? '1px solid var(--border)' : 'none'}">
+            <div>
+              <div style="font-size:13px;font-weight:600">${name}${isAllPaid ? ' <span style="font-size:11px;background:#BBF7D0;color:#15803D;padding:1px 7px;border-radius:10px;font-weight:700;margin-left:4px">✓ Lunas</span>' : ''}</div>
+              <div style="font-size:11px;color:${isAllPaid ? '#16A34A' : 'var(--text3)'};">${d.count} pesanan · Lunas ${rupiah(d.paid)}</div>
+            </div>
+            <div style="font-size:13px;font-weight:700;font-family:'DM Mono',monospace;color:${isAllPaid ? 'var(--green-dark)' : 'var(--text)'}">${rupiah(d.total)}</div>
+          </div>`;
+        }).join('');
+      })()}
+      </div>
     </div>` : `<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">Belum ada data penjualan</div></div>`}
   `;
 }
@@ -1581,16 +1693,40 @@ window.renderBuyerList = function() {
     return;
   }
 
+  // Name filter for tagihan
+  const tagihanSearchEl = document.getElementById('filterTagihanBuyer');
+  const tagihanSearch = tagihanSearchEl ? tagihanSearchEl.value.toLowerCase().trim() : '';
+
+  let buyerEntries = Object.entries(buyers);
+  if (tagihanSearch) {
+    buyerEntries = buyerEntries.filter(([name]) => name.toLowerCase().includes(tagihanSearch));
+  }
+
+  // Sort by name
+  buyerEntries = buyerEntries.sort((a, b) => {
+    const na = a[0].toLowerCase();
+    const nb = b[0].toLowerCase();
+    return tagihanSortMode === 'asc' ? na.localeCompare(nb, 'id') : nb.localeCompare(na, 'id');
+  });
+
+  if (!buyerEntries.length) {
+    buyerDiv.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">Tidak ada pembeli yang cocok</div></div>`;
+    return;
+  }
+
   buyerDiv.innerHTML = `<div class="buyer-select">` +
-    Object.entries(buyers).sort((a,b) => b[1].unpaid - a[1].unpaid || b[1].total - a[1].total).map(([name, d]) => `
-      <div class="buyer-option ${selectedBuyer === name ? 'selected' : ''}" onclick="selectBuyer('${name}')">
+    buyerEntries.map(([name, d]) => {
+      const isAllPaid = d.unpaid === 0;
+      return `
+      <div class="buyer-option ${selectedBuyer === name ? 'selected' : ''} ${isAllPaid ? 'all-paid' : ''}" onclick="selectBuyer('${name}')">
         <div class="buyer-avatar" style="background:${d.unpaid > 0 ? 'var(--brand)' : 'var(--green-dark)'}">${initials(name)}</div>
         <div class="buyer-info">
-          <div class="buyer-name">${name}</div>
-          <div class="buyer-total">${d.count} item · ${rupiah(d.total)} · ${d.unpaid > 0 ? '<span style="color:var(--brand);font-weight:700">⏳ Belum ' + rupiah(d.unpaid) + '</span>' : '✅ Lunas'}</div>
+          <div class="buyer-name">${name}${isAllPaid ? ' <span style="font-size:12px;background:#BBF7D0;color:#15803D;padding:1px 7px;border-radius:10px;font-weight:700">✓ LUNAS</span>' : ''}</div>
+          <div class="buyer-total">${d.count} item · ${rupiah(d.total)} · ${d.unpaid > 0 ? '<span style="color:var(--brand);font-weight:700">⏳ Belum ' + rupiah(d.unpaid) + '</span>' : '<span style="color:#15803D;font-weight:700">✅ Lunas semua</span>'}</div>
         </div>
         <span style="font-size:18px">→</span>
-      </div>`).join('') + `</div>`;
+      </div>`;
+    }).join('') + `</div>`;
 
   if (selectedBuyer) renderBill(selectedBuyer);
 };
@@ -1668,7 +1804,7 @@ function buildAllUnpaidText() {
     text += `  💰 Subtotal: *${rupiah(bTotal)}*\n`;
     if (idx < buyers.length - 1) text += `  ─────────────────\n`;
   });
-
+  text += `\n━━━━━━━━━━━━━━━━━━━\n⏳ *TOTAL BELUM BAYAR: ${rupiah(grandTotal)}*\n(${buyers.length} pembeli)\n━━━━━━━━━━━━━━━━━━━\nMohon segera melunasi. Terima kasih! 🙏`;
   return text;
 }
 
@@ -1821,6 +1957,10 @@ renderQris(); // render QRIS tab on load (default tab)
 // agar bisa memanggil fungsi dalam ES Module scope
 document.getElementById('filterBuyer').addEventListener('input', () => window.renderOrders());
 document.getElementById('filterStatus').addEventListener('change', () => window.renderOrders());
+
+// Tagihan buyer filter listener
+const filterTagihanBuyerEl = document.getElementById('filterTagihanBuyer');
+if (filterTagihanBuyerEl) filterTagihanBuyerEl.addEventListener('input', () => window.renderBuyerList());
 
 // Sembunyikan loading overlay setelah listeners terpasang
 setTimeout(() => {
