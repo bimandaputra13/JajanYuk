@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JajanYuk - Pencatatan Penjualan</title>
+<title>JajanYuk</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -226,7 +226,7 @@
         <div class="logo-icon">🍜</div>
         <div>
           <div class="logo-text">JajanYuk</div>
-          <div class="logo-sub">Pencatatan Penjualan</div>
+          <div class="logo-sub"></div>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
@@ -1458,7 +1458,6 @@ function buildAllUnpaidText() {
     text += `  💰 Subtotal: *${rupiah(bTotal)}*\n`;
     if (idx < buyers.length - 1) text += `  ─────────────────\n`;
   });
-  text += `\n━━━━━━━━━━━━━━━━━━━\n⏳ *TOTAL BELUM BAYAR: ${rupiah(grandTotal)}*\n(${buyers.length} pembeli)\n━━━━━━━━━━━━━━━━━━━\nMohon segera melunasi. Terima kasih! 🙏`;
   return text;
 }
 
