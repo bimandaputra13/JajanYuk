@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JajanYuk - Pencatatan Penjualan</title>
+<title>JajanYuk</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -294,7 +294,7 @@
         <div class="logo-icon">🍜</div>
         <div>
           <div class="logo-text">JajanYuk</div>
-          <div class="logo-sub">Pencatatan Penjualan</div>
+       
         </div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
@@ -571,7 +571,13 @@
         <div class="section-title" style="margin-bottom:0">🧾 Pilih Pembeli</div>
         <div style="display:flex;gap:6px;align-items:center">
           <input type="text" class="filter-input" id="filterTagihanBuyer" placeholder="🔍 Cari nama..." style="width:130px;font-size:12px;padding:7px 10px">
-          <button class="sort-btn active" id="tagihanSortBtn" onclick="toggleTagihanSort()" title="Urutkan nama pembeli">A↑Z</button>
+          <select id="tagihanSortField" onchange="onTagihanSortChange()" style="padding:7px 8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:12px;font-family:inherit;outline:none;color:var(--text);background:var(--surface);font-weight:700;cursor:pointer;max-width:90px">
+            <option value="name">Nama</option>
+            <option value="total">Total</option>
+            <option value="unpaid">Belum Bayar</option>
+            <option value="count">Jml Item</option>
+          </select>
+          <button class="sort-btn active" id="tagihanSortBtn" onclick="toggleTagihanSort()" title="Urutkan">A↑Z</button>
         </div>
       </div>
       <div id="buyerList"></div>
@@ -711,6 +717,7 @@ let tagihanDateMode  = 'today';
 // Sort state
 let pesananSortMode  = 'asc';   // 'asc' | 'desc' | 'default'
 let tagihanSortMode  = 'asc';
+let tagihanSortField = 'name'; // 'name' | 'total' | 'unpaid' | 'count'
 let ringSortMode     = 'asc';
 
 // ============================================================
@@ -1022,12 +1029,28 @@ window.togglePesananSort = function() {
 
 window.toggleTagihanSort = function() {
   tagihanSortMode = tagihanSortMode === 'asc' ? 'desc' : 'asc';
-  const btn = document.getElementById('tagihanSortBtn');
-  if (btn) {
-    btn.textContent = tagihanSortMode === 'asc' ? 'A↑Z' : 'Z↓A';
-  }
+  updateTagihanSortBtn();
   window.renderBuyerList();
 };
+
+window.onTagihanSortChange = function() {
+  const sel = document.getElementById('tagihanSortField');
+  if (sel) { tagihanSortField = sel.value; tagihanSortMode = 'asc'; }
+  updateTagihanSortBtn();
+  window.renderBuyerList();
+};
+
+function updateTagihanSortBtn() {
+  const btn = document.getElementById('tagihanSortBtn');
+  if (!btn) return;
+  const labels = {
+    name:   tagihanSortMode === 'asc' ? 'A↑Z' : 'Z↓A',
+    total:  tagihanSortMode === 'asc' ? '💰↑' : '💰↓',
+    unpaid: tagihanSortMode === 'asc' ? '⏳↑' : '⏳↓',
+    count:  tagihanSortMode === 'asc' ? '#↑'  : '#↓'
+  };
+  btn.textContent = labels[tagihanSortField] || (tagihanSortMode === 'asc' ? 'A↑Z' : 'Z↓A');
+}
 
 window.toggleRingSummarySort = function() {
   ringSortMode = ringSortMode === 'asc' ? 'desc' : 'asc';
@@ -1702,11 +1725,23 @@ window.renderBuyerList = function() {
     buyerEntries = buyerEntries.filter(([name]) => name.toLowerCase().includes(tagihanSearch));
   }
 
-  // Sort by name
+  // Sort by selected field
   buyerEntries = buyerEntries.sort((a, b) => {
-    const na = a[0].toLowerCase();
-    const nb = b[0].toLowerCase();
-    return tagihanSortMode === 'asc' ? na.localeCompare(nb, 'id') : nb.localeCompare(na, 'id');
+    let valA, valB;
+    if (tagihanSortField === 'total') {
+      valA = a[1].total; valB = b[1].total;
+      return tagihanSortMode === 'asc' ? valA - valB : valB - valA;
+    } else if (tagihanSortField === 'unpaid') {
+      valA = a[1].unpaid; valB = b[1].unpaid;
+      return tagihanSortMode === 'asc' ? valA - valB : valB - valA;
+    } else if (tagihanSortField === 'count') {
+      valA = a[1].count; valB = b[1].count;
+      return tagihanSortMode === 'asc' ? valA - valB : valB - valA;
+    } else {
+      const na = a[0].toLowerCase();
+      const nb = b[0].toLowerCase();
+      return tagihanSortMode === 'asc' ? na.localeCompare(nb, 'id') : nb.localeCompare(na, 'id');
+    }
   });
 
   if (!buyerEntries.length) {
@@ -1789,11 +1824,48 @@ function buildAllUnpaidText() {
   const timeStr = d.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
 
   let text = `🍜 *JAJANYUK — REKAP TAGIHAN*\n📅 ${dateStr}, ${timeStr}\n━━━━━━━━━━━━━━━━━━━\n`;
-  let grandTotal = 0;
-  buyers.forEach((name, idx) => {
+
+  // Sort labels for header
+  const sortLabels = { name: 'Nama (A-Z)', total: 'Total Tagihan', unpaid: 'Belum Bayar', count: 'Jml Item' };
+  const sortDir    = tagihanSortMode === 'asc' ? '↑ Terkecil→Terbesar' : '↓ Terbesar→Terkecil';
+  const sortLabel  = tagihanSortField === 'name'
+    ? (tagihanSortMode === 'asc' ? 'Nama A→Z' : 'Nama Z→A')
+    : `${sortLabels[tagihanSortField] || ''} ${sortDir}`;
+  text += `📊 Urutan: ${sortLabel}\n━━━━━━━━━━━━━━━━━━━\n`;
+
+  // Build buyer map with totals
+  const buyerMap = {};
+  buyers.forEach(name => {
     const bOrders = todayUnpaid.filter(o => o.buyer === name);
-    const bTotal  = bOrders.reduce((s, o) => s + o.price * o.qty, 0);
-    grandTotal   += bTotal;
+    buyerMap[name] = {
+      orders: bOrders,
+      total:  bOrders.reduce((s, o) => s + o.price * o.qty, 0),
+      count:  bOrders.length,
+      unpaid: bOrders.reduce((s, o) => s + o.price * o.qty, 0)
+    };
+  });
+
+  // Sort buyers
+  const sortedBuyers = Object.keys(buyerMap).sort((a, b) => {
+    if (tagihanSortField === 'total' || tagihanSortField === 'unpaid') {
+      return tagihanSortMode === 'asc'
+        ? buyerMap[a].total - buyerMap[b].total
+        : buyerMap[b].total - buyerMap[a].total;
+    } else if (tagihanSortField === 'count') {
+      return tagihanSortMode === 'asc'
+        ? buyerMap[a].count - buyerMap[b].count
+        : buyerMap[b].count - buyerMap[a].count;
+    } else {
+      return tagihanSortMode === 'asc'
+        ? a.toLowerCase().localeCompare(b.toLowerCase(), 'id')
+        : b.toLowerCase().localeCompare(a.toLowerCase(), 'id');
+    }
+  });
+
+  let grandTotal = 0;
+  sortedBuyers.forEach((name, idx) => {
+    const { orders: bOrders, total: bTotal } = buyerMap[name];
+    grandTotal += bTotal;
     text += `\n👤 *${name}*\n`;
     bOrders.forEach(o => {
       text += `  • ${o.item}`;
@@ -1802,9 +1874,9 @@ function buildAllUnpaidText() {
       text += ` → ${rupiah(o.price * o.qty)}\n`;
     });
     text += `  💰 Subtotal: *${rupiah(bTotal)}*\n`;
-    if (idx < buyers.length - 1) text += `  ─────────────────\n`;
+    if (idx < sortedBuyers.length - 1) text += `  ─────────────────\n`;
   });
-  text += `\n━━━━━━━━━━━━━━━━━━━\n⏳ *TOTAL BELUM BAYAR: ${rupiah(grandTotal)}*\n(${buyers.length} pembeli)\n━━━━━━━━━━━━━━━━━━━\nMohon segera melunasi. Terima kasih! 🙏`;
+ 
   return text;
 }
 
@@ -1812,11 +1884,14 @@ window.showAllUnpaidBill = function() {
   const text = buildAllUnpaidText();
   if (!text) { showToast('Tidak ada tagihan belum bayar', '✅'); return; }
   const escaped = text.replace(/\\/g, '\\\\').replace(/`/g, '\\`');
+  const sortFieldLabels = { name: 'Nama', total: 'Total', unpaid: 'Belum Bayar', count: 'Jml Item' };
+  const sortDirIcon = tagihanSortMode === 'asc' ? '↑' : '↓';
+  const sortInfo = `${sortFieldLabels[tagihanSortField] || 'Nama'} ${sortDirIcon}`;
   selectedBuyer = null;
   document.getElementById('buyerList').querySelectorAll('.buyer-option').forEach(el => el.classList.remove('selected'));
   document.getElementById('billPreview').innerHTML = `
     <div style="margin-top:16px">
-      <div class="section-title" style="color:var(--brand)">⏳ Rekap Semua Tagihan Belum Bayar</div>
+      <div class="section-title" style="color:var(--brand)">⏳ Rekap Semua Tagihan Belum Bayar <span style="font-size:11px;background:var(--brand-light);color:var(--brand);border:1px solid #FFB899;padding:2px 8px;border-radius:20px;font-weight:700;margin-left:4px">📊 ${sortInfo}</span></div>
       <div class="bill-preview" style="background:var(--brand-light);border:1px solid #FFB899"><pre>${text}</pre></div>
       <div class="bill-actions">
         <button class="btn btn-ghost btn-sm" onclick="copyBill(\`${escaped}\`)">📋 Copy</button>
