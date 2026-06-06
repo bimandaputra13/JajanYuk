@@ -160,9 +160,37 @@
   .text-sm { font-size: 12px; }
   .text-muted { color: var(--text2); }
   .font-bold { font-weight: 700; }
-  .filter-row { display: flex; gap: 6px; margin-bottom: 12px; align-items: center; }
-  .filter-input { flex: 1; padding: 8px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; outline: none; color: var(--text); background: var(--surface); }
+  .filter-row { display: flex; gap: 6px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
+  .filter-input { flex: 1; min-width: 120px; padding: 8px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; outline: none; color: var(--text); background: var(--surface); }
   .filter-input:focus { border-color: var(--brand); }
+
+  /* Date filter bar */
+  .date-filter-bar { display: flex; gap: 6px; margin-bottom: 14px; align-items: center; flex-wrap: wrap; }
+  .date-filter-bar .date-label { font-size: 11px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+  .date-filter-input { padding: 7px 10px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; outline: none; color: var(--text); background: var(--surface); transition: border 0.2s; cursor: pointer; }
+  .date-filter-input:focus { border-color: var(--brand); }
+  .date-shortcut-row { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px; }
+  .date-shortcut { padding: 5px 10px; border: 1.5px solid var(--border); border-radius: 20px; font-size: 11px; font-weight: 600; color: var(--text2); background: var(--surface); cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; }
+  .date-shortcut:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-light); }
+  .date-shortcut.active { border-color: var(--brand); color: var(--brand); background: var(--brand-light); }
+  .filter-section { background: var(--surface2); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px; border: 1px solid var(--border); }
+  .filter-section-title { font-size: 11px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .active-filter-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; background: var(--brand-light); border: 1px solid #FFB899; border-radius: 20px; font-size: 11px; font-weight: 700; color: var(--brand); margin-left: auto; }
+
+  /* Improved order item */
+  .order-item-date { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* Improved summary period tabs */
+  .period-tabs-wrap { position: relative; margin-bottom: 14px; }
+  .period-tabs { display: flex; gap: 4px; background: var(--surface2); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 0; }
+  .summary-date-range { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+  .summary-date-range .date-filter-input { flex: 1; font-size: 12px; padding: 6px 10px; }
+  .summary-date-range-label { font-size: 11px; color: var(--text3); font-weight: 600; }
+
+  /* Tagihan date filter */
+  .tagihan-filter { background: var(--surface2); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px; border: 1px solid var(--border); }
+  .tagihan-filter-row { display: flex; gap: 8px; align-items: center; }
+  .tagihan-filter-row .date-filter-input { flex: 1; font-size: 12px; padding: 6px 10px; }
 
   /* Antrian */
   .antrian-item { background: var(--surface); border: 1.5px solid var(--amber-light); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 8px; }
@@ -215,7 +243,7 @@
 <!-- Loading Overlay -->
 <div id="loadingOverlay">
   <div class="load-icon">🍜</div>
-  <div class="load-text">Menghubungkan ke Firestore…</div>
+  <div class="load-text">Menghubungkan…</div>
 </div>
 
 <div class="app">
@@ -226,7 +254,6 @@
         <div class="logo-icon">🍜</div>
         <div>
           <div class="logo-text">JajanYuk</div>
-          <div class="logo-sub"></div>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
@@ -308,6 +335,28 @@
         <div class="section-title" style="margin-bottom:0">⏳ Menunggu Pembeli <span id="antrianCount" style="font-size:13px;font-weight:500;color:var(--text2)">0 item</span></div>
         <button class="btn btn-sm btn-ghost" id="btnClearAntrian" onclick="clearSentAntrian()" style="font-size:11px;display:none">🧹 Bersihkan Terkirim</button>
       </div>
+      <!-- Filter Tanggal Antrian -->
+      <div class="filter-section">
+        <div class="filter-section-title">
+          📅 Filter Tanggal
+          <span class="active-filter-badge" id="antrianFilterBadge" style="display:none">Difilter</span>
+        </div>
+        <div class="date-shortcut-row">
+          <button class="date-shortcut active" id="antrianShortcutToday" onclick="setAntrianDateFilter('today',this)">Hari Ini</button>
+          <button class="date-shortcut" id="antrianShortcutYesterday" onclick="setAntrianDateFilter('yesterday',this)">Kemarin</button>
+          <button class="date-shortcut" id="antrianShortcutWeek" onclick="setAntrianDateFilter('week',this)">7 Hari</button>
+          <button class="date-shortcut" id="antrianShortcutAll" onclick="setAntrianDateFilter('all',this)">Semua</button>
+          <button class="date-shortcut" id="antrianShortcutCustom" onclick="setAntrianDateFilter('custom',this)">📅 Pilih</button>
+        </div>
+        <div id="antrianCustomDateWrap" style="display:none">
+          <div class="date-filter-bar">
+            <span class="date-label">Dari</span>
+            <input type="date" class="date-filter-input" id="antrianDateFrom" onchange="renderAntrian()">
+            <span class="date-label">s/d</span>
+            <input type="date" class="date-filter-input" id="antrianDateTo" onchange="renderAntrian()">
+          </div>
+        </div>
+      </div>
       <div id="antrianList"></div>
     </div>
 
@@ -366,14 +415,36 @@
         </div>
       </div>
 
-      <div class="section-title">📋 Pesanan Hari Ini <span id="orderCount">0 item</span> <span id="todayDebug" style="font-size:10px;color:var(--text3);font-weight:400"></span></div>
-      <div class="filter-row">
-        <input type="text" class="filter-input" id="filterBuyer" placeholder="🔍 Cari pembeli atau item...">
-        <select class="form-select" style="width:auto;font-size:13px;padding:8px 10px" id="filterStatus">
-          <option value="">Semua</option>
-          <option value="unpaid">Belum Bayar</option>
-          <option value="paid">Sudah Bayar</option>
-        </select>
+      <div class="section-title">📋 Pesanan <span id="orderCount">0 item</span> <span id="todayDebug" style="font-size:10px;color:var(--text3);font-weight:400"></span></div>
+      <!-- Filter Section -->
+      <div class="filter-section">
+        <div class="filter-section-title">
+          🔍 Filter &amp; Cari
+          <span class="active-filter-badge" id="pesananFilterBadge" style="display:none">Difilter</span>
+        </div>
+        <div class="filter-row" style="margin-bottom:8px">
+          <input type="text" class="filter-input" id="filterBuyer" placeholder="🔍 Cari pembeli atau item...">
+          <select class="form-select" style="width:auto;font-size:13px;padding:8px 10px;flex-shrink:0" id="filterStatus">
+            <option value="">Semua</option>
+            <option value="unpaid">Belum Bayar</option>
+            <option value="paid">Sudah Bayar</option>
+          </select>
+        </div>
+        <div class="date-shortcut-row" style="margin-bottom:6px">
+          <button class="date-shortcut active" id="pesananShortcutToday" onclick="setPesananDateFilter('today',this)">Hari Ini</button>
+          <button class="date-shortcut" id="pesananShortcutYesterday" onclick="setPesananDateFilter('yesterday',this)">Kemarin</button>
+          <button class="date-shortcut" id="pesananShortcutWeek" onclick="setPesananDateFilter('week',this)">7 Hari</button>
+          <button class="date-shortcut" id="pesananShortcutAll" onclick="setPesananDateFilter('all',this)">Semua</button>
+          <button class="date-shortcut" id="pesananShortcutCustom" onclick="setPesananDateFilter('custom',this)">📅 Pilih</button>
+        </div>
+        <div id="pesananCustomDateWrap" style="display:none">
+          <div class="date-filter-bar" style="margin-bottom:0">
+            <span class="date-label">Dari</span>
+            <input type="date" class="date-filter-input" id="pesananDateFrom" onchange="window.renderOrders()">
+            <span class="date-label">s/d</span>
+            <input type="date" class="date-filter-input" id="pesananDateTo" onchange="window.renderOrders()">
+          </div>
+        </div>
       </div>
       <div class="orders-list" id="orderList"></div>
     </div>
@@ -410,16 +481,49 @@
 
     <!-- TAB: RINGKASAN -->
     <div class="tab-panel" id="tab-ringkasan">
-      <div class="period-tabs">
-        <button class="period-tab active" onclick="setPeriod('daily', this)">Harian</button>
-        <button class="period-tab" onclick="setPeriod('weekly', this)">Mingguan</button>
-        <button class="period-tab" onclick="setPeriod('monthly', this)">Bulanan</button>
+      <div class="period-tabs-wrap">
+        <div class="period-tabs">
+          <button class="period-tab active" onclick="setPeriod('daily', this)">Harian</button>
+          <button class="period-tab" onclick="setPeriod('weekly', this)">Mingguan</button>
+          <button class="period-tab" onclick="setPeriod('monthly', this)">Bulanan</button>
+          <button class="period-tab" id="periodTabCustom" onclick="setPeriod('custom', this)">📅 Pilih</button>
+        </div>
+        <div id="summaryCustomDateWrap" style="display:none;margin-top:8px">
+          <div class="summary-date-range">
+            <span class="summary-date-range-label">Dari</span>
+            <input type="date" class="date-filter-input" id="summaryDateFrom" onchange="renderSummary()">
+            <span class="summary-date-range-label">s/d</span>
+            <input type="date" class="date-filter-input" id="summaryDateTo" onchange="renderSummary()">
+          </div>
+        </div>
       </div>
       <div id="summaryContent"></div>
     </div>
 
     <!-- TAB: TAGIHAN -->
     <div class="tab-panel" id="tab-tagihan">
+      <!-- Filter Tanggal Tagihan -->
+      <div class="tagihan-filter">
+        <div class="filter-section-title" style="margin-bottom:10px">
+          📅 Filter Tanggal Tagihan
+          <span class="active-filter-badge" id="tagihanFilterBadge" style="display:none">Difilter</span>
+        </div>
+        <div class="date-shortcut-row" style="margin-bottom:8px">
+          <button class="date-shortcut active" id="tagihanShortcutToday" onclick="setTagihanDateFilter('today',this)">Hari Ini</button>
+          <button class="date-shortcut" id="tagihanShortcutYesterday" onclick="setTagihanDateFilter('yesterday',this)">Kemarin</button>
+          <button class="date-shortcut" id="tagihanShortcutWeek" onclick="setTagihanDateFilter('week',this)">7 Hari</button>
+          <button class="date-shortcut" id="tagihanShortcutAll" onclick="setTagihanDateFilter('all',this)">Semua</button>
+          <button class="date-shortcut" id="tagihanShortcutCustom" onclick="setTagihanDateFilter('custom',this)">📅 Pilih</button>
+        </div>
+        <div id="tagihanCustomDateWrap" style="display:none">
+          <div class="tagihan-filter-row">
+            <span class="date-label">Dari</span>
+            <input type="date" class="date-filter-input" id="tagihanDateFrom" onchange="window.renderBuyerList()">
+            <span class="date-label">s/d</span>
+            <input type="date" class="date-filter-input" id="tagihanDateTo" onchange="window.renderBuyerList()">
+          </div>
+        </div>
+      </div>
       <div id="unpaidBanner"></div>
       <div class="section-title">🧾 Pilih Pembeli</div>
       <div id="buyerList"></div>
@@ -551,6 +655,11 @@ let currentPeriod  = 'daily';
 let selectedBuyer  = null;
 let qrisOverlayNominal = '';
 
+// Date filter state
+let antrianDateMode  = 'today';
+let pesananDateMode  = 'today';
+let tagihanDateMode  = 'today';
+
 // ============================================================
 // ADMIN STATE
 // ============================================================
@@ -643,6 +752,66 @@ function today() {
 }
 function generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 5); }
 function initials(name) { return name.split(' ').map(w => w[0]).join('').toUpperCase().substr(0, 2); }
+
+// ============================================================
+// DATE FILTER HELPERS
+// ============================================================
+function getDateOffset(daysAgo) {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  return d.toISOString().split('T')[0];
+}
+
+function getFilterDates(mode, fromId, toId) {
+  // Returns {from, to} strings in YYYY-MM-DD, or null for 'all'
+  const t = today();
+  if (mode === 'today')     return { from: t, to: t };
+  if (mode === 'yesterday') { const y = getDateOffset(1); return { from: y, to: y }; }
+  if (mode === 'week')      return { from: getDateOffset(6), to: t };
+  if (mode === 'all')       return null;
+  if (mode === 'custom') {
+    const from = document.getElementById(fromId)?.value;
+    const to   = document.getElementById(toId)?.value;
+    if (from && to) return { from, to };
+    if (from)       return { from, to: t };
+    return null;
+  }
+  return { from: t, to: t };
+}
+
+function filterByDateRange(items, range) {
+  if (!range) return items;
+  return items.filter(o => o.date >= range.from && o.date <= range.to);
+}
+
+function setDateFilterShortcuts(mode, prefix) {
+  ['Today','Yesterday','Week','All','Custom'].forEach(s => {
+    const el = document.getElementById(prefix + 'Shortcut' + s);
+    if (el) el.classList.toggle('active', mode === s.toLowerCase());
+  });
+  const customWrap = document.getElementById(prefix + 'CustomDateWrap');
+  if (customWrap) customWrap.style.display = mode === 'custom' ? 'block' : 'none';
+  const badge = document.getElementById(prefix + 'FilterBadge');
+  if (badge) badge.style.display = mode !== 'today' ? 'inline-flex' : 'none';
+}
+
+window.setAntrianDateFilter = function(mode, btn) {
+  antrianDateMode = mode;
+  setDateFilterShortcuts(mode, 'antrian');
+  renderAntrian();
+};
+
+window.setPesananDateFilter = function(mode, btn) {
+  pesananDateMode = mode;
+  setDateFilterShortcuts(mode, 'pesanan');
+  window.renderOrders();
+};
+
+window.setTagihanDateFilter = function(mode, btn) {
+  tagihanDateMode = mode;
+  setDateFilterShortcuts(mode, 'tagihan');
+  window.renderBuyerList();
+};
 
 function showToast(msg, icon = '✅') {
   const t = document.getElementById('toast');
@@ -794,10 +963,9 @@ window.renderOrders = function renderOrders() {
   const filterBuyer    = filterBuyerEl  ? filterBuyerEl.value.toLowerCase().trim() : '';
   const filterStatus   = filterStatusEl ? filterStatusEl.value : '';
 
-  const todayStr = today();
-
-  // Filter pesanan hari ini berdasarkan tanggal lokal
-  let filtered = orders.filter(o => o.date === todayStr);
+  // Apply date filter
+  const dateRange = getFilterDates(pesananDateMode, 'pesananDateFrom', 'pesananDateTo');
+  let filtered = filterByDateRange(orders, dateRange);
 
   // Terapkan search: cocokkan nama pembeli atau nama item
   if (filterBuyer) {
@@ -812,14 +980,17 @@ window.renderOrders = function renderOrders() {
   if (filterStatus === 'unpaid') filtered = filtered.filter(o => !o.paid);
 
   // Update counter
-  const todayAll = orders.filter(o => o.date === todayStr);
   document.getElementById('orderCount').textContent = filtered.length + ' item';
+
+  // Update badge
+  const badge = document.getElementById('pesananFilterBadge');
+  if (badge) badge.style.display = (pesananDateMode !== 'today' || filterBuyer || filterStatus) ? 'inline-flex' : 'none';
 
   const list = document.getElementById('orderList');
   if (!list) return;
 
   if (filtered.length === 0) {
-    const msg = filterBuyer || filterStatus
+    const msg = (filterBuyer || filterStatus || pesananDateMode !== 'today')
       ? 'Tidak ada pesanan yang cocok dengan filter'
       : 'Belum ada pesanan hari ini';
     list.innerHTML = `<div class="empty-state"><div class="empty-icon">🍱</div><div class="empty-text">${msg}</div></div>`;
@@ -835,6 +1006,7 @@ window.renderOrders = function renderOrders() {
         </div>
         <div class="order-item-buyer">👤 ${o.buyer || '-'}${o.qty > 1 ? ' · x' + o.qty : ''}</div>
         ${o.note ? '<div class="order-item-details">📝 ' + o.note + '</div>' : ''}
+        ${pesananDateMode !== 'today' ? '<div class="order-item-date">📅 ' + (o.date || '-') + '</div>' : ''}
         <div class="order-item-actions">
           <button class="btn btn-sm ${o.paid ? 'btn-warning' : 'btn-success'}" onclick="togglePaid('${o.firestoreId}')">
             ${o.paid ? '↩ Batal Lunas' : '✓ Tandai Lunas'}
@@ -1131,14 +1303,19 @@ function renderAntrian() {
   const clearBtn  = document.getElementById('btnClearAntrian');
   if (!list) return;
 
-  const pending = antrian.filter(a => !a.sent);
-  const sent    = antrian.filter(a => a.sent);
+  // Apply date filter
+  const dateRange = getFilterDates(antrianDateMode, 'antrianDateFrom', 'antrianDateTo');
+  const filtered  = filterByDateRange(antrian, dateRange);
+
+  const pending = filtered.filter(a => !a.sent);
+  const sent    = filtered.filter(a => a.sent);
 
   if (countEl) countEl.textContent = pending.length + ' item';
   if (clearBtn) clearBtn.style.display = sent.length ? 'inline-flex' : 'none';
 
-  if (!antrian.length) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🗒️</div><div class="empty-text">Belum ada item di antrian</div></div>';
+  if (!filtered.length) {
+    const msg = antrianDateMode !== 'today' ? 'Tidak ada item antrian pada tanggal ini' : 'Belum ada item di antrian';
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🗒️</div><div class="empty-text">' + msg + '</div></div>';
     return;
   }
 
@@ -1151,6 +1328,7 @@ function renderAntrian() {
           <div>
             <div class="antrian-item-name">${a.item || '-'}${a.qty > 1 ? ' <span style="font-size:12px;color:var(--text3)">x' + a.qty + '</span>' : ''}</div>
             ${a.note ? '<div style="font-size:11px;color:var(--text3);margin-top:2px">📝 ' + a.note + '</div>' : ''}
+            ${antrianDateMode !== 'today' ? '<div style="font-size:11px;color:var(--text3);margin-top:2px">📅 ' + (a.date || '-') + '</div>' : ''}
             ${a.sent ? '<div style="font-size:11px;font-weight:700;color:var(--green-dark);margin-top:4px">✓ Terkirim ke: ' + a.buyer + '</div>' : ''}
           </div>
           <div style="display:flex;align-items:center;gap:6px">
@@ -1244,12 +1422,27 @@ window.setPeriod = function(period, btn) {
   currentPeriod = period;
   document.querySelectorAll('.period-tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  const customWrap = document.getElementById('summaryCustomDateWrap');
+  if (customWrap) customWrap.style.display = period === 'custom' ? 'block' : 'none';
   renderSummary();
 };
 
 function getDateRange(period) {
   const now = new Date(); const dates = [];
   if (period === 'daily') return [today()];
+  if (period === 'custom') {
+    const from = document.getElementById('summaryDateFrom')?.value;
+    const to   = document.getElementById('summaryDateTo')?.value;
+    if (!from || !to) return [today()];
+    const start = new Date(from + 'T00:00:00');
+    const end   = new Date(to   + 'T00:00:00');
+    const d = new Date(start);
+    while (d <= end) {
+      dates.push(d.toISOString().split('T')[0]);
+      d.setDate(d.getDate() + 1);
+    }
+    return dates.length ? dates : [today()];
+  }
   const days = period === 'weekly' ? 6 : 29;
   for (let i = days; i >= 0; i--) {
     const d = new Date(now); d.setDate(d.getDate() - i);
@@ -1303,7 +1496,14 @@ function renderSummary() {
     if (o.paid) buyerBreakdown[o.buyer].paid += o.price * o.qty;
   });
 
-  const periodLabel = currentPeriod === 'daily' ? 'Hari Ini' : currentPeriod === 'weekly' ? '7 Hari Terakhir' : '30 Hari Terakhir';
+  const periodLabel = currentPeriod === 'daily' ? 'Hari Ini'
+    : currentPeriod === 'weekly'  ? '7 Hari Terakhir'
+    : currentPeriod === 'monthly' ? '30 Hari Terakhir'
+    : (() => {
+        const from = document.getElementById('summaryDateFrom')?.value;
+        const to   = document.getElementById('summaryDateTo')?.value;
+        return from && to ? from + ' s/d ' + to : 'Periode Kustom';
+      })();
 
   document.getElementById('summaryContent').innerHTML = `
     <div style="font-size:12px;font-weight:600;color:var(--text3);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px">${periodLabel}</div>
@@ -1337,14 +1537,20 @@ function renderSummary() {
 // TAGIHAN
 // ============================================================
 window.renderBuyerList = function() {
-  const todayOrders = orders.filter(o => o.date === today());
-  const buyers      = {};
+  // Apply tagihan date filter
+  const dateRange    = getFilterDates(tagihanDateMode, 'tagihanDateFrom', 'tagihanDateTo');
+  const todayOrders  = filterByDateRange(orders, dateRange);
+  const buyers       = {};
   todayOrders.forEach(o => {
     if (!buyers[o.buyer]) buyers[o.buyer] = { total: 0, count: 0, unpaid: 0 };
     buyers[o.buyer].total  += o.price * o.qty;
     buyers[o.buyer].count  += 1;
     if (!o.paid) buyers[o.buyer].unpaid += o.price * o.qty;
   });
+
+  // Update filter badge
+  const badge = document.getElementById('tagihanFilterBadge');
+  if (badge) badge.style.display = tagihanDateMode !== 'today' ? 'inline-flex' : 'none';
 
   const totalUnpaid      = Object.values(buyers).reduce((s, d) => s + d.unpaid, 0);
   const unpaidBuyerCount = Object.values(buyers).filter(d => d.unpaid > 0).length;
@@ -1369,7 +1575,8 @@ window.renderBuyerList = function() {
 
   const buyerDiv = document.getElementById('buyerList');
   if (!Object.keys(buyers).length) {
-    buyerDiv.innerHTML = `<div class="empty-state"><div class="empty-icon">🧾</div><div class="empty-text">Belum ada pesanan hari ini</div></div>`;
+    const emptyMsg = tagihanDateMode !== 'today' ? 'Tidak ada pesanan pada tanggal ini' : 'Belum ada pesanan hari ini';
+    buyerDiv.innerHTML = `<div class="empty-state"><div class="empty-icon">🧾</div><div class="empty-text">${emptyMsg}</div></div>`;
     document.getElementById('billPreview').innerHTML = '';
     return;
   }
@@ -1395,7 +1602,9 @@ window.selectBuyer = function(name) {
 };
 
 function buildBillText(buyerName, onlyUnpaid) {
-  const buyerOrders = orders.filter(o => o.date === today() && o.buyer === buyerName && (onlyUnpaid ? !o.paid : true));
+  const dateRange   = getFilterDates(tagihanDateMode, 'tagihanDateFrom', 'tagihanDateTo');
+  const rangeOrders = filterByDateRange(orders, dateRange);
+  const buyerOrders = rangeOrders.filter(o => o.buyer === buyerName && (onlyUnpaid ? !o.paid : true));
   if (!buyerOrders.length) return null;
   const total   = buyerOrders.reduce((s, o) => s + o.price * o.qty, 0);
   const d       = new Date();
@@ -1434,7 +1643,8 @@ function renderBill(buyerName) {
 }
 
 function buildAllUnpaidText() {
-  const todayUnpaid = orders.filter(o => o.date === today() && !o.paid);
+  const dateRange   = getFilterDates(tagihanDateMode, 'tagihanDateFrom', 'tagihanDateTo');
+  const todayUnpaid = filterByDateRange(orders, dateRange).filter(o => !o.paid);
   const buyers      = [...new Set(todayUnpaid.map(o => o.buyer))];
   if (!buyers.length) return null;
 
@@ -1458,6 +1668,7 @@ function buildAllUnpaidText() {
     text += `  💰 Subtotal: *${rupiah(bTotal)}*\n`;
     if (idx < buyers.length - 1) text += `  ─────────────────\n`;
   });
+
   return text;
 }
 
