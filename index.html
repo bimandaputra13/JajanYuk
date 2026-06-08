@@ -1030,7 +1030,7 @@ window.togglePaid = async function(firestoreId) {
   const o = orders.find(o => o.firestoreId === firestoreId);
   if (!o) return;
 
-  // Jika sedang MEMBATALKAN lunas (sudah paid → unpaid), langsung update
+  // Jika sedang MEMBATALKAN lunas (sudah paid -> unpaid), langsung update
   if (o.paid) {
     setSyncBadge('loading');
     try {
@@ -1453,7 +1453,7 @@ window.sendAntrianToOrder = async function(firestoreId) {
     await addDoc(ordersCol, { buyer, item: a.item, price: a.price, qty: a.qty || 1, note: a.note || '', paid: false, date: today(), createdAt: Date.now() });
     // Tandai antrian sebagai sent + simpan nama buyer
     await updateDoc(doc(db, 'antrian', firestoreId), { sent: true, buyer });
-    showToast(a.item + ' → ' + buyer + ' dikirim ke Pesanan! ✓');
+    showToast(a.item + ' -> ' + buyer + ' dikirim ke Pesanan! ✓');
     setSyncBadge('ok');
   } catch(e) {
     showToast('Gagal kirim!', '❌'); setSyncBadge('err');
@@ -1886,7 +1886,7 @@ window.renderBuyerList = function() {
           <div class="buyer-name">${name}${isAllPaid ? ' <span style="font-size:12px;background:#BBF7D0;color:#15803D;padding:1px 7px;border-radius:10px;font-weight:700">✓ LUNAS</span>' : ''}${depBadge}</div>
           <div class="buyer-total">${d.count} item · ${rupiah(d.total)} · ${d.unpaid > 0 ? '<span style="color:var(--brand);font-weight:700">⏳ Belum ' + rupiah(d.unpaid) + '</span>' : '<span style="color:#15803D;font-weight:700">✅ Lunas semua</span>'}</div>
         </div>
-        <span style="font-size:18px">→</span>
+        <span style="font-size:18px">-></span>
       </div>`;
     }).join('') + `</div>`;
 
@@ -1954,9 +1954,9 @@ function buildAllUnpaidText() {
 
   // Sort labels for header
   const sortLabels = { name: 'Nama (A-Z)', total: 'Total Tagihan', unpaid: 'Belum Bayar', count: 'Jml Item' };
-  const sortDir    = tagihanSortMode === 'asc' ? '↑ Terkecil→Terbesar' : '↓ Terbesar→Terkecil';
+  const sortDir    = tagihanSortMode === 'asc' ? '↑ Terkecil->Terbesar' : '↓ Terbesar->Terkecil';
   const sortLabel  = tagihanSortField === 'name'
-    ? (tagihanSortMode === 'asc' ? 'Nama A→Z' : 'Nama Z→A')
+    ? (tagihanSortMode === 'asc' ? 'Nama A->Z' : 'Nama Z->A')
     : `${sortLabels[tagihanSortField] || ''} ${sortDir}`;
   text += `📊 Urutan: ${sortLabel}\n━━━━━━━━━━━━━━━━━━━\n`;
 
@@ -1998,7 +1998,7 @@ function buildAllUnpaidText() {
       text += `  • ${o.item}`;
       if (o.qty > 1) text += ` (x${o.qty})`;
       if (o.note)    text += ` [${o.note}]`;
-      text += ` → ${rupiah(o.price * o.qty)}\n`;
+      text += ` -> ${rupiah(o.price * o.qty)}\n`;
     });
     text += `  💰 Subtotal: *${rupiah(bTotal)}*\n`;
     if (idx < sortedBuyers.length - 1) text += `  ─────────────────\n`;
