@@ -98,10 +98,21 @@
   .period-tabs { display: flex; gap: 4px; background: var(--surface2); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 16px; }
   .period-tab { flex: 1; padding: 8px 4px; border: none; background: none; font-size: 13px; font-weight: 600; color: var(--text2); cursor: pointer; border-radius: 6px; font-family: inherit; transition: all 0.2s; }
   .period-tab.active { background: white; color: var(--brand); box-shadow: var(--shadow); }
-  .deposit-item { background: var(--blue-light); border: 1px solid #BFDBFE; border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+  .deposit-item { background: var(--blue-light); border: 1px solid #BFDBFE; border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: flex-start; justify-content: space-between; }
+  .deposit-item.depleted { background: var(--red-light); border-color: #FCA5A5; }
+  .deposit-item.partial { background: var(--amber-light); border-color: #FDE68A; }
+  .deposit-item.full { background: var(--blue-light); border-color: #BFDBFE; }
   .deposit-name { font-size: 14px; font-weight: 600; color: var(--text); }
   .deposit-amount { font-size: 15px; font-weight: 700; color: var(--blue); font-family: 'DM Mono', monospace; }
+  .deposit-amount.red { color: var(--red); }
+  .deposit-amount.orange { color: #B45309; }
   .deposit-date { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .deposit-balance-bar { height: 4px; border-radius: 2px; background: #BFDBFE; margin-top: 6px; overflow: hidden; }
+  .deposit-balance-fill { height: 100%; border-radius: 2px; background: var(--blue); transition: width 0.4s; }
+  .deposit-balance-fill.orange { background: var(--amber); }
+  .deposit-balance-fill.red { background: var(--red); }
+  .badge-deposit { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
+  .badge-deposit-used { background: var(--amber-light); color: #92400E; border: 1px solid #FDE68A; }
   .buyer-select { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
   .buyer-option { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; }
   .buyer-option:hover { border-color: var(--brand); background: var(--brand-light); }
@@ -510,15 +521,24 @@
         <button class="btn btn-primary" id="btnAddDeposit" onclick="addDeposit()">💰 Simpan Deposit</button>
       </div>
 
-      <div class="section-title">💼 Daftar Deposit <span id="depCount"></span></div>
-      <div id="depositList"></div>
-
-      <div class="card mt-12" style="background:var(--blue-light);border-color:#BFDBFE">
-        <div class="flex justify-between items-center">
-          <span style="font-size:14px;font-weight:700;color:#1D4ED8">Total Deposit Tersimpan</span>
-          <span style="font-size:18px;font-weight:800;color:#1D4ED8;font-family:'DM Mono',monospace" id="totalDeposit">Rp 0</span>
+      <!-- Ringkasan Deposit -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+        <div class="stat-card" style="padding:10px">
+          <div class="stat-label" style="font-size:10px">Total Deposit</div>
+          <div class="stat-value blue" style="font-size:14px" id="totalDeposit">Rp 0</div>
+        </div>
+        <div class="stat-card" style="padding:10px">
+          <div class="stat-label" style="font-size:10px">Terpakai</div>
+          <div class="stat-value" style="font-size:14px;color:var(--amber)" id="totalDepositUsed">Rp 0</div>
+        </div>
+        <div class="stat-card" style="padding:10px">
+          <div class="stat-label" style="font-size:10px">Sisa</div>
+          <div class="stat-value green" style="font-size:14px" id="totalDepositSisa">Rp 0</div>
         </div>
       </div>
+
+      <div class="section-title">💼 Daftar Deposit <span id="depCount"></span></div>
+      <div id="depositList"></div>
     </div>
 
     <!-- TAB: RINGKASAN -->
@@ -906,6 +926,7 @@ function startListeners() {
   onSnapshot(query(ordersCol, orderBy('createdAt', 'asc')), snap => {
     orders = snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
     renderOrders();
+    renderDeposits(); // refresh saldo deposit setiap ada perubahan pesanan
     setSyncBadge('ok');
   }, err => {
     console.error('Orders listener error:', err);
@@ -1008,10 +1029,59 @@ window.deleteOrder = async function(firestoreId) {
 window.togglePaid = async function(firestoreId) {
   const o = orders.find(o => o.firestoreId === firestoreId);
   if (!o) return;
+
+  // Jika sedang MEMBATALKAN lunas (sudah paid → unpaid), langsung update
+  if (o.paid) {
+    setSyncBadge('loading');
+    try {
+      await updateDoc(doc(db, 'orders', firestoreId), { paid: false, paidViaDeposit: false });
+      showToast('Ditandai belum bayar');
+      renderDeposits();
+    } catch(e) {
+      showToast('Gagal update!', '❌'); setSyncBadge('err');
+    }
+    return;
+  }
+
+  // Cek apakah pembeli punya deposit
+  const buyerName    = (o.buyer || '').toLowerCase();
+  const buyerDeposits = deposits.filter(d => d.name && d.name.toLowerCase() === buyerName);
+  const totalDep      = buyerDeposits.reduce((s, d) => s + (d.amount || 0), 0);
+  const totalUsed     = getDepositUsedByName(o.buyer);
+  const sisaDep       = totalDep - totalUsed;
+  const itemTotal     = (o.price || 0) * (o.qty || 1);
+
   setSyncBadge('loading');
   try {
-    await updateDoc(doc(db, 'orders', firestoreId), { paid: !o.paid });
-    showToast(!o.paid ? 'Ditandai sudah bayar ✓' : 'Ditandai belum bayar');
+    if (buyerDeposits.length > 0 && sisaDep > 0) {
+      // Ada deposit tersedia — tanya apakah mau potong deposit
+      const konfirmasi = confirm(
+        `💰 ${o.buyer} punya deposit!\n` +
+        `Sisa deposit: ${rupiah(sisaDep)}\n` +
+        `Harga item: ${rupiah(itemTotal)}\n\n` +
+        `Potong deposit secara otomatis?\n` +
+        `(Tekan OK = pakai deposit, Batal = bayar manual)`
+      );
+      if (konfirmasi) {
+        if (sisaDep < itemTotal) {
+          const kurang = itemTotal - sisaDep;
+          const lanjut = confirm(
+            `⚠️ Deposit tidak cukup!\n` +
+            `Sisa deposit: ${rupiah(sisaDep)}\n` +
+            `Kurang: ${rupiah(kurang)}\n\n` +
+            `Tetap tandai lunas (pakai deposit + bayar sisanya)?`
+          );
+          if (!lanjut) { setSyncBadge('ok'); return; }
+        }
+        await updateDoc(doc(db, 'orders', firestoreId), { paid: true, paidViaDeposit: true });
+        showToast(`✓ Lunas pakai deposit! Sisa deposit: ${rupiah(Math.max(0, sisaDep - itemTotal))}`);
+        renderDeposits();
+        return;
+      }
+    }
+    // Bayar manual biasa
+    await updateDoc(doc(db, 'orders', firestoreId), { paid: true, paidViaDeposit: false });
+    showToast('Ditandai sudah bayar ✓');
   } catch(e) {
     showToast('Gagal update!', '❌'); setSyncBadge('err');
   }
@@ -1108,26 +1178,34 @@ window.renderOrders = function renderOrders() {
     return;
   }
 
-  list.innerHTML = filtered.map(o => `
+  list.innerHTML = filtered.map(o => {
+    // Cek apakah pembeli punya deposit (untuk badge indikator)
+    const hasDep = deposits.some(d => d.name && d.name.toLowerCase() === (o.buyer || '').toLowerCase());
+    const depBadge = o.paidViaDeposit
+      ? `<span class="badge badge-deposit">💰 Deposit</span>`
+      : (hasDep && !o.paid ? `<span class="badge badge-deposit-used" title="Punya deposit">💳</span>` : '');
+
+    return `
     <div class="order-item ${o.paid ? 'paid' : ''}">
       <div class="order-item-info">
         <div class="order-item-name">
           ${o.item || '-'}
           <span class="badge ${o.paid ? 'badge-paid' : 'badge-unpaid'}">${o.paid ? '✓ Lunas' : '⏳ Belum'}</span>
+          ${depBadge}
         </div>
         <div class="order-item-buyer">👤 ${o.buyer || '-'}${o.qty > 1 ? ' · x' + o.qty : ''}</div>
         ${o.note ? '<div class="order-item-details">📝 ' + o.note + '</div>' : ''}
         ${pesananDateMode !== 'today' ? '<div class="order-item-date">📅 ' + (o.date || '-') + '</div>' : ''}
         <div class="order-item-actions">
           <button class="btn btn-sm ${o.paid ? 'btn-warning' : 'btn-success'}" onclick="togglePaid('${o.firestoreId}')">
-            ${o.paid ? '↩ Batal Lunas' : '✓ Tandai Lunas'}
+            ${o.paid ? '↩ Batal Lunas' : (deposits.some(d => d.name && d.name.toLowerCase() === (o.buyer||'').toLowerCase()) ? '💰 Tandai Lunas' : '✓ Tandai Lunas')}
           </button>
           <button class="btn btn-sm btn-danger" onclick="deleteOrder('${o.firestoreId}')">🗑 Hapus</button>
         </div>
       </div>
       <div class="order-item-price">${rupiah((o.price || 0) * (o.qty || 1))}</div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 // ============================================================
@@ -1501,29 +1579,71 @@ window.deleteDeposit = async function(firestoreId) {
   }
 };
 
+function getDepositUsedByName(name) {
+  // Sum semua pesanan yang SUDAH LUNAS (paid=true) dari pembeli bernama `name`
+  // yang dibayar via deposit (field paidViaDeposit=true)
+  return orders
+    .filter(o => o.buyer && o.buyer.toLowerCase() === name.toLowerCase() && o.paid && o.paidViaDeposit)
+    .reduce((s, o) => s + (o.price || 0) * (o.qty || 1), 0);
+}
+
+function getDepositTotalByName(name) {
+  // Total deposit yang dimiliki oleh nama ini (bisa lebih dari 1 entri)
+  return deposits
+    .filter(d => d.name && d.name.toLowerCase() === name.toLowerCase())
+    .reduce((s, d) => s + (d.amount || 0), 0);
+}
+
 function renderDeposits() {
   const list  = document.getElementById('depositList');
   const total = deposits.reduce((s, d) => s + d.amount, 0);
-  document.getElementById('totalDeposit').textContent = rupiah(total);
-  document.getElementById('depCount').textContent     = deposits.length + ' orang';
+  document.getElementById('depCount').textContent = deposits.length + ' entri';
+
+  // Hitung total terpakai dari semua deposit (via paidViaDeposit flag)
+  const totalUsed = orders.filter(o => o.paid && o.paidViaDeposit).reduce((s, o) => s + (o.price || 0) * (o.qty || 1), 0);
+  const totalSisa = total - totalUsed;
+
+  const totalDepEl = document.getElementById('totalDeposit');
+  const totalUsedEl = document.getElementById('totalDepositUsed');
+  const totalSisaEl = document.getElementById('totalDepositSisa');
+  if (totalDepEl)  totalDepEl.textContent  = rupiah(total);
+  if (totalUsedEl) totalUsedEl.textContent = rupiah(totalUsed);
+  if (totalSisaEl) totalSisaEl.textContent = rupiah(Math.max(0, totalSisa));
 
   if (!deposits.length) {
     list.innerHTML = `<div class="empty-state"><div class="empty-icon">💼</div><div class="empty-text">Belum ada deposit tersimpan</div></div>`;
     return;
   }
 
-  list.innerHTML = deposits.slice().sort((a,b) => b.createdAt - a.createdAt).map(d => `
-    <div class="deposit-item">
-      <div>
+  list.innerHTML = deposits.slice().sort((a,b) => b.createdAt - a.createdAt).map(d => {
+    const used       = getDepositUsedByName(d.name);
+    const sisa       = d.amount - used;
+    const pct        = d.amount > 0 ? Math.max(0, Math.min(100, Math.round((sisa / d.amount) * 100))) : 0;
+    const isDepleted = sisa <= 0;
+    const isPartial  = sisa > 0 && sisa < d.amount;
+    const cls        = isDepleted ? 'depleted' : isPartial ? 'partial' : 'full';
+    const amtColor   = isDepleted ? 'red' : isPartial ? 'orange' : '';
+    const fillColor  = isDepleted ? 'red' : isPartial ? 'orange' : '';
+    const sisaLabel  = isDepleted ? '🔴 Habis' : isPartial ? `🟡 Sisa ${rupiah(sisa)}` : `🟢 Sisa ${rupiah(sisa)}`;
+
+    // Ambil pesanan terbaru yg pakai deposit dari nama ini
+    const relatedOrders = orders.filter(o => o.buyer && o.buyer.toLowerCase() === d.name.toLowerCase() && o.paid && o.paidViaDeposit);
+    const usedNote = used > 0 ? `· Terpakai ${rupiah(used)}` : '';
+
+    return `
+    <div class="deposit-item ${cls}">
+      <div style="flex:1;min-width:0">
         <div class="deposit-name">👤 ${d.name}</div>
-        <div class="deposit-date">📅 ${d.date}${d.note ? ' · 📝 ' + d.note : ''}</div>
+        <div class="deposit-date">📅 ${d.date}${d.note ? ' · 📝 ' + d.note : ''} ${usedNote}</div>
+        <div style="font-size:11px;font-weight:700;margin-top:4px;color:${isDepleted ? 'var(--red)' : isPartial ? '#92400E' : '#1D4ED8'}">${sisaLabel}</div>
+        <div class="deposit-balance-bar"><div class="deposit-balance-fill ${fillColor}" style="width:${pct}%"></div></div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div class="deposit-amount">${rupiah(d.amount)}</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;margin-left:10px">
+        <div class="deposit-amount ${amtColor}">${rupiah(d.amount)}</div>
         <button class="btn btn-sm btn-danger" onclick="deleteDeposit('${d.firestoreId}')">✕</button>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 // ============================================================
@@ -1752,11 +1872,18 @@ window.renderBuyerList = function() {
   buyerDiv.innerHTML = `<div class="buyer-select">` +
     buyerEntries.map(([name, d]) => {
       const isAllPaid = d.unpaid === 0;
+      // Cek deposit
+      const depTotal = getDepositTotalByName(name);
+      const depUsed  = getDepositUsedByName(name);
+      const depSisa  = depTotal - depUsed;
+      const depBadge = depTotal > 0
+        ? `<span style="font-size:10px;background:#EFF6FF;color:#1D4ED8;padding:2px 6px;border-radius:10px;font-weight:700;border:1px solid #BFDBFE;margin-left:4px">💰 Dep ${rupiah(depSisa)}</span>`
+        : '';
       return `
       <div class="buyer-option ${selectedBuyer === name ? 'selected' : ''} ${isAllPaid ? 'all-paid' : ''}" onclick="selectBuyer('${name}')">
         <div class="buyer-avatar" style="background:${d.unpaid > 0 ? 'var(--brand)' : 'var(--green-dark)'}">${initials(name)}</div>
         <div class="buyer-info">
-          <div class="buyer-name">${name}${isAllPaid ? ' <span style="font-size:12px;background:#BBF7D0;color:#15803D;padding:1px 7px;border-radius:10px;font-weight:700">✓ LUNAS</span>' : ''}</div>
+          <div class="buyer-name">${name}${isAllPaid ? ' <span style="font-size:12px;background:#BBF7D0;color:#15803D;padding:1px 7px;border-radius:10px;font-weight:700">✓ LUNAS</span>' : ''}${depBadge}</div>
           <div class="buyer-total">${d.count} item · ${rupiah(d.total)} · ${d.unpaid > 0 ? '<span style="color:var(--brand);font-weight:700">⏳ Belum ' + rupiah(d.unpaid) + '</span>' : '<span style="color:#15803D;font-weight:700">✅ Lunas semua</span>'}</div>
         </div>
         <span style="font-size:18px">→</span>
