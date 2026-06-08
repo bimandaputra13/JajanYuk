@@ -1950,7 +1950,7 @@ function buildAllUnpaidText() {
   const dateStr = d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
   const timeStr = d.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
 
-  let text = `🍜 *JAJANYUK — REKAP TAGIHAN*\n📅 ${dateStr}, ${timeStr}\n━━━━━━━━━━━━━━━━━━━\n`;
+  let text = `🍉 *JAJANYUK — REKAP PESANAN*\n📅 ${dateStr}, ${timeStr}\n━━━━━━━━━━━━━━━━━━━\n`;
 
   // Sort labels for header
   const sortLabels = { name: 'Nama (A-Z)', total: 'Total Tagihan', unpaid: 'Belum Bayar', count: 'Jml Item' };
@@ -2003,7 +2003,7 @@ function buildAllUnpaidText() {
     text += `  💰 Subtotal: *${rupiah(bTotal)}*\n`;
     if (idx < sortedBuyers.length - 1) text += `  ─────────────────\n`;
   });
- 
+ text +=`\n*Terima Kasih*`;
   return text;
 }
 
