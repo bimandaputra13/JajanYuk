@@ -1030,10 +1030,21 @@ window.togglePaid = async function(firestoreId) {
   const o = orders.find(o => o.firestoreId === firestoreId);
   if (!o) return;
 
-  // Jika sedang MEMBATALKAN lunas (sudah paid -> unpaid), langsung update
+  // Jika sedang MEMBATALKAN lunas (sudah paid -> unpaid)
   if (o.paid) {
     setSyncBadge('loading');
     try {
+      const itemTotal = (o.price || 0) * (o.qty || 1);
+      if (o.paidViaDeposit) {
+        const bName = (o.buyer || '').toLowerCase();
+        const relDep = deposits
+          .filter(d => d.name && d.name.toLowerCase() === bName && (d.usedAmount || 0) > 0)
+          .sort((a, b) => b.createdAt - a.createdAt)[0];
+        if (relDep) {
+          const newUsed = Math.max(0, (relDep.usedAmount || 0) - itemTotal);
+          await updateDoc(doc(db, 'deposits', relDep.firestoreId), { usedAmount: newUsed });
+        }
+      }
       await updateDoc(doc(db, 'orders', firestoreId), { paid: false, paidViaDeposit: false });
       showToast('Ditandai belum bayar');
       renderDeposits();
@@ -1043,18 +1054,15 @@ window.togglePaid = async function(firestoreId) {
     return;
   }
 
-  // Cek apakah pembeli punya deposit
-  const buyerName    = (o.buyer || '').toLowerCase();
+  // Cek apakah pembeli punya deposit AKTIF (sisa > 0)
+  const buyerName     = (o.buyer || '').toLowerCase();
   const buyerDeposits = deposits.filter(d => d.name && d.name.toLowerCase() === buyerName);
-  const totalDep      = buyerDeposits.reduce((s, d) => s + (d.amount || 0), 0);
-  const totalUsed     = getDepositUsedByName(o.buyer);
-  const sisaDep       = totalDep - totalUsed;
   const itemTotal     = (o.price || 0) * (o.qty || 1);
+  const sisaDep       = buyerDeposits.reduce((s, d) => s + getDepositSisaById(d), 0);
 
   setSyncBadge('loading');
   try {
     if (buyerDeposits.length > 0 && sisaDep > 0) {
-      // Ada deposit tersedia — tanya apakah mau potong deposit
       const konfirmasi = confirm(
         `💰 ${o.buyer} punya deposit!\n` +
         `Sisa deposit: ${rupiah(sisaDep)}\n` +
@@ -1073,8 +1081,24 @@ window.togglePaid = async function(firestoreId) {
           );
           if (!lanjut) { setSyncBadge('ok'); return; }
         }
+        // Potong usedAmount secara FIFO (entri deposit paling lama dipotong dulu)
+        let sisa = itemTotal;
+        const sortedDeps = buyerDeposits
+          .filter(d => getDepositSisaById(d) > 0)
+          .sort((a, b) => a.createdAt - b.createdAt);
+        const updates = [];
+        for (const dep of sortedDeps) {
+          if (sisa <= 0) break;
+          const depSisa  = getDepositSisaById(dep);
+          const dipotong = Math.min(depSisa, sisa);
+          const newUsed  = (dep.usedAmount || 0) + dipotong;
+          updates.push(updateDoc(doc(db, 'deposits', dep.firestoreId), { usedAmount: newUsed }));
+          sisa -= dipotong;
+        }
+        await Promise.all(updates);
         await updateDoc(doc(db, 'orders', firestoreId), { paid: true, paidViaDeposit: true });
-        showToast(`✓ Lunas pakai deposit! Sisa deposit: ${rupiah(Math.max(0, sisaDep - itemTotal))}`);
+        const sisaSetelah = Math.max(0, sisaDep - itemTotal);
+        showToast(`✓ Lunas pakai deposit! Sisa: ${rupiah(sisaSetelah)}`);
         renderDeposits();
         return;
       }
@@ -1086,7 +1110,6 @@ window.togglePaid = async function(firestoreId) {
     showToast('Gagal update!', '❌'); setSyncBadge('err');
   }
 };
-
 window.togglePesananSort = function() {
   pesananSortMode = pesananSortMode === 'asc' ? 'desc' : 'asc';
   const btn = document.getElementById('pesananSortBtn');
@@ -1547,7 +1570,7 @@ window.addDeposit = async function() {
   const amount = parseFloat(document.getElementById('depAmount').value);
   const note   = document.getElementById('depNote').value.trim();
 
-  if (!name || !amount) { showToast('Lengkapi nama dan jumlah deposit!', '⚠️'); return; }
+  if (!name || !amount || amount <= 0) { showToast('Lengkapi nama dan jumlah deposit!', '⚠️'); return; }
 
   const btn = document.getElementById('btnAddDeposit');
   btn.disabled = true;
@@ -1555,11 +1578,20 @@ window.addDeposit = async function() {
   setSyncBadge('loading');
 
   try {
-    await addDoc(depositsCol, { name, amount, note, date: today(), createdAt: Date.now() });
+    // Simpan deposit baru dengan field usedAmount = 0 (sisa dikelola per-entri)
+    await addDoc(depositsCol, {
+      name,
+      amount,
+      usedAmount: 0,
+      note,
+      date: today(),
+      createdAt: Date.now()
+    });
     document.getElementById('depName').value   = '';
     document.getElementById('depAmount').value = '';
     document.getElementById('depNote').value   = '';
-    showToast('Deposit ' + name + ' disimpan!');
+    showToast('Deposit ' + name + ' disimpan! 💰');
+    setSyncBadge('ok');
   } catch(e) {
     showToast('Gagal menyimpan deposit!', '❌'); setSyncBadge('err');
   } finally {
@@ -1574,76 +1606,128 @@ window.deleteDeposit = async function(firestoreId) {
   try {
     await deleteDoc(doc(db, 'deposits', firestoreId));
     showToast('Deposit dihapus', '🗑️');
+    setSyncBadge('ok');
   } catch(e) {
     showToast('Gagal hapus!', '❌'); setSyncBadge('err');
   }
 };
 
+// Hitung sisa saldo deposit PER ENTRI (bukan per nama) menggunakan field usedAmount
+// Jika field usedAmount belum ada (deposit lama), fallback ke hitung dari orders
+function getDepositSisaById(d) {
+  const used = (typeof d.usedAmount === 'number') ? d.usedAmount : getDepositUsedByName(d.name);
+  return Math.max(0, (d.amount || 0) - used);
+}
+
 function getDepositUsedByName(name) {
-  // Sum semua pesanan yang SUDAH LUNAS (paid=true) dari pembeli bernama `name`
-  // yang dibayar via deposit (field paidViaDeposit=true)
+  // Fallback untuk deposit lama yang belum punya field usedAmount
   return orders
     .filter(o => o.buyer && o.buyer.toLowerCase() === name.toLowerCase() && o.paid && o.paidViaDeposit)
     .reduce((s, o) => s + (o.price || 0) * (o.qty || 1), 0);
 }
 
 function getDepositTotalByName(name) {
-  // Total deposit yang dimiliki oleh nama ini (bisa lebih dari 1 entri)
   return deposits
     .filter(d => d.name && d.name.toLowerCase() === name.toLowerCase())
     .reduce((s, d) => s + (d.amount || 0), 0);
 }
 
+// Auto-hapus deposit yang sudah habis (sisa = 0) setelah transaksi
+async function autoCleanDepletedDeposits() {
+  const depleted = deposits.filter(d => getDepositSisaById(d) <= 0);
+  if (!depleted.length) return;
+  try {
+    await Promise.all(depleted.map(d => deleteDoc(doc(db, 'deposits', d.firestoreId))));
+    if (depleted.length === 1) {
+      showToast(`Deposit ${depleted[0].name} habis & otomatis dihapus 🗑️`);
+    } else {
+      showToast(`${depleted.length} deposit habis & otomatis dihapus 🗑️`);
+    }
+  } catch(e) {
+    // silent fail — jangan ganggu flow utama
+  }
+}
+
 function renderDeposits() {
-  const list  = document.getElementById('depositList');
-  const total = deposits.reduce((s, d) => s + d.amount, 0);
-  document.getElementById('depCount').textContent = deposits.length + ' entri';
+  const list = document.getElementById('depositList');
 
-  // Hitung total terpakai dari semua deposit (via paidViaDeposit flag)
-  const totalUsed = orders.filter(o => o.paid && o.paidViaDeposit).reduce((s, o) => s + (o.price || 0) * (o.qty || 1), 0);
-  const totalSisa = total - totalUsed;
+  // Hanya tampilkan deposit yang masih punya saldo (sisa > 0)
+  const activeDeposits = deposits.filter(d => getDepositSisaById(d) > 0);
+  const allDeposits    = deposits.slice().sort((a, b) => b.createdAt - a.createdAt);
 
-  const totalDepEl = document.getElementById('totalDeposit');
+  const total     = activeDeposits.reduce((s, d) => s + (d.amount || 0), 0);
+  const totalSisa = activeDeposits.reduce((s, d) => s + getDepositSisaById(d), 0);
+  const totalUsed = total - totalSisa;
+
+  document.getElementById('depCount').textContent = activeDeposits.length + ' aktif';
+
+  const totalDepEl  = document.getElementById('totalDeposit');
   const totalUsedEl = document.getElementById('totalDepositUsed');
   const totalSisaEl = document.getElementById('totalDepositSisa');
   if (totalDepEl)  totalDepEl.textContent  = rupiah(total);
-  if (totalUsedEl) totalUsedEl.textContent = rupiah(totalUsed);
-  if (totalSisaEl) totalSisaEl.textContent = rupiah(Math.max(0, totalSisa));
+  if (totalUsedEl) totalUsedEl.textContent = rupiah(Math.max(0, totalUsed));
+  if (totalSisaEl) totalSisaEl.textContent = rupiah(totalSisa);
 
-  if (!deposits.length) {
+  if (!allDeposits.length) {
     list.innerHTML = `<div class="empty-state"><div class="empty-icon">💼</div><div class="empty-text">Belum ada deposit tersimpan</div></div>`;
     return;
   }
 
-  list.innerHTML = deposits.slice().sort((a,b) => b.createdAt - a.createdAt).map(d => {
-    const used       = getDepositUsedByName(d.name);
-    const sisa       = d.amount - used;
+  // Pisah: aktif (sisa > 0) dan habis (sisa = 0) — habis masih ditampilkan tapi dengan tombol hapus
+  const activeList   = allDeposits.filter(d => getDepositSisaById(d) > 0);
+  const depletedList = allDeposits.filter(d => getDepositSisaById(d) <= 0);
+
+  const renderItem = (d) => {
+    const sisa       = getDepositSisaById(d);
+    const used       = (d.amount || 0) - sisa;
     const pct        = d.amount > 0 ? Math.max(0, Math.min(100, Math.round((sisa / d.amount) * 100))) : 0;
     const isDepleted = sisa <= 0;
     const isPartial  = sisa > 0 && sisa < d.amount;
     const cls        = isDepleted ? 'depleted' : isPartial ? 'partial' : 'full';
     const amtColor   = isDepleted ? 'red' : isPartial ? 'orange' : '';
     const fillColor  = isDepleted ? 'red' : isPartial ? 'orange' : '';
-    const sisaLabel  = isDepleted ? '🔴 Habis' : isPartial ? `🟡 Sisa ${rupiah(sisa)}` : `🟢 Sisa ${rupiah(sisa)}`;
-
-    // Ambil pesanan terbaru yg pakai deposit dari nama ini
-    const relatedOrders = orders.filter(o => o.buyer && o.buyer.toLowerCase() === d.name.toLowerCase() && o.paid && o.paidViaDeposit);
-    const usedNote = used > 0 ? `· Terpakai ${rupiah(used)}` : '';
+    const sisaLabel  = isDepleted
+      ? '🔴 Habis — akan otomatis dihapus'
+      : isPartial
+        ? `🟡 Sisa ${rupiah(sisa)}`
+        : `🟢 Sisa ${rupiah(sisa)}`;
+    const usedNote = used > 0 ? ` · Terpakai ${rupiah(used)}` : '';
 
     return `
-    <div class="deposit-item ${cls}">
+    <div class="deposit-item ${cls}" id="dep-${d.firestoreId}">
       <div style="flex:1;min-width:0">
         <div class="deposit-name">👤 ${d.name}</div>
-        <div class="deposit-date">📅 ${d.date}${d.note ? ' · 📝 ' + d.note : ''} ${usedNote}</div>
+        <div class="deposit-date">📅 ${d.date}${d.note ? ' · 📝 ' + d.note : ''}${usedNote}</div>
         <div style="font-size:11px;font-weight:700;margin-top:4px;color:${isDepleted ? 'var(--red)' : isPartial ? '#92400E' : '#1D4ED8'}">${sisaLabel}</div>
         <div class="deposit-balance-bar"><div class="deposit-balance-fill ${fillColor}" style="width:${pct}%"></div></div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;margin-left:10px">
         <div class="deposit-amount ${amtColor}">${rupiah(d.amount)}</div>
-        <button class="btn btn-sm btn-danger" onclick="deleteDeposit('${d.firestoreId}')">✕</button>
+        ${isDepleted
+          ? `<button class="btn btn-sm btn-danger" onclick="deleteDeposit('${d.firestoreId}')">🗑️ Hapus</button>`
+          : `<button class="btn btn-sm btn-danger" onclick="deleteDeposit('${d.firestoreId}')">✕</button>`}
       </div>
     </div>`;
-  }).join('');
+  };
+
+  let html = '';
+
+  if (activeList.length) {
+    html += activeList.map(renderItem).join('');
+  }
+
+  if (depletedList.length) {
+    html += `<div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px">🔴 Habis (${depletedList.length}) — segera dihapus</div>`;
+    html += depletedList.map(renderItem).join('');
+    // Auto-clean depleted entries dari Firestore
+    autoCleanDepletedDeposits();
+  }
+
+  if (!activeList.length && !depletedList.length) {
+    html = `<div class="empty-state"><div class="empty-icon">💼</div><div class="empty-text">Belum ada deposit tersimpan</div></div>`;
+  }
+
+  list.innerHTML = html;
 }
 
 // ============================================================
