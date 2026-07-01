@@ -287,6 +287,28 @@
     margin: -4px -6px;
     box-shadow: 0 0 0 1.5px rgba(34,197,94,0.35);
   }
+
+  /* ============ UTB TAB ============ */
+  .utb-name-card { text-align: center; padding: 28px 20px; }
+  .utb-name-icon { font-size: 40px; margin-bottom: 10px; }
+  .utb-name-title { font-size: 17px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+  .utb-name-sub { font-size: 13px; color: var(--text2); margin-bottom: 18px; }
+  .utb-user-bar { display:flex; align-items:center; justify-content:space-between; padding:12px 14px; }
+  .utb-user-bar-name { font-size: 14px; font-weight: 700; color: var(--text); }
+  .utb-user-bar-name span { font-size: 11px; font-weight: 600; color: var(--text2); display:block; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px; }
+  .utb-list { padding-bottom: 90px; }
+  .utb-item { display:flex; align-items:center; gap:12px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 8px; transition: all 0.2s; }
+  .utb-item.checked { background: var(--green-light); border-color: #86EFAC; }
+  .utb-item.locked { background: var(--surface2); border-color: var(--border); opacity: 0.65; }
+  .utb-checkbox-wrap { flex-shrink: 0; display:flex; align-items:center; }
+  .utb-checkbox-wrap input[type=checkbox] { width: 24px; height: 24px; accent-color: var(--green-dark); cursor: pointer; }
+  .utb-checkbox-wrap input[type=checkbox]:disabled { cursor: not-allowed; }
+  .utb-item-info { flex: 1; min-width: 0; }
+  .utb-item-name { font-size: 14px; font-weight: 700; color: var(--text); }
+  .utb-item-note { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .utb-item-locked-by { font-size: 11px; font-weight: 700; color: var(--amber); margin-top: 3px; display:flex; align-items:center; gap:4px; }
+  .utb-item-price { font-size: 14px; font-weight: 800; color: var(--brand); font-family: 'DM Mono', monospace; white-space: nowrap; }
+  .utb-order-bar { position: sticky; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1.5px solid var(--border); padding: 12px 16px; margin: 12px -16px -16px; box-shadow: 0 -4px 16px rgba(0,0,0,0.08); }
 </style>
 </head>
 <body>
@@ -322,6 +344,7 @@
       <button class="nav-btn locked" id="navDeposit" onclick="switchTab('deposit')"><span class="nav-icon">💰</span>Deposit</button>
       <button class="nav-btn locked" id="navRingkasan" onclick="switchTab('ringkasan')"><span class="nav-icon">📊</span>Ringkasan</button>
       <button class="nav-btn locked" id="navTagihan" onclick="switchTab('tagihan')"><span class="nav-icon">🧾</span>Tagihan</button>
+      <button class="nav-btn" id="navUtb" onclick="switchTab('utb')"><span class="nav-icon">🧃</span>UTB</button>
       <button class="nav-btn active" id="navQris" onclick="switchTab('qris')"><span class="nav-icon">📲</span>QRIS</button>
     </div>
   </div>
@@ -604,6 +627,32 @@
       <div id="billPreview"></div>
     </div>
 
+    <!-- TAB: UTB -->
+    <div class="tab-panel" id="tab-utb">
+      <div class="card utb-name-card" id="utbNamePrompt" style="display:none">
+        <div class="utb-name-icon">🧃</div>
+        <div class="utb-name-title">Masukkan Nama Kamu</div>
+        <div class="utb-name-sub">Nama ini akan dipakai untuk mencatat pesanan kamu di UTB</div>
+        <div class="form-group" style="text-align:left">
+          <input type="text" class="form-input" id="utbNameInput" placeholder="cth: Budi" autocomplete="off" onkeydown="if(event.key==='Enter') utbSetName()">
+        </div>
+        <button class="btn btn-primary" onclick="utbSetName()">✅ Masuk</button>
+      </div>
+
+      <div id="utbMain" style="display:none">
+        <div class="card utb-user-bar">
+          <div class="utb-user-bar-name"><span>Nama Kamu</span><span id="utbCurrentName">-</span></div>
+          <button class="btn btn-sm btn-ghost" onclick="utbChangeName()">🔄 Ganti Nama</button>
+        </div>
+        <div class="section-title">🧃 Daftar UTB <span id="utbCount">0 item</span></div>
+        <div class="utb-list" id="utbList"></div>
+      </div>
+
+      <div class="utb-order-bar" id="utbOrderBar" style="display:none">
+        <button class="btn btn-primary w-full" onclick="submitUtbOrder()">✅ Order (<span id="utbSelectedCount">0</span> item · <span id="utbSelectedTotal">Rp 0</span>)</button>
+      </div>
+    </div>
+
     <!-- TAB: QRIS -->
     <div class="tab-panel active" id="tab-qris">
       <!-- elemen dummy agar renderQris() tidak error -->
@@ -739,6 +788,9 @@ let pesananSortMode  = 'asc';   // 'asc' | 'desc' | 'default'
 let tagihanSortMode  = 'asc';
 let tagihanSortField = 'name'; // 'name' | 'total' | 'unpaid' | 'count'
 let ringSortMode     = 'asc';
+
+// UTB state (in-memory only, tidak pakai browser storage)
+let utbUserName = null;
 
 // ============================================================
 // ADMIN STATE
@@ -943,6 +995,8 @@ function startListeners() {
   onSnapshot(query(antrianCol, orderBy('createdAt', 'asc')), snap => {
     antrian = snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
     renderAntrian();
+    // UTB ikut sinkron realtime dengan data antrian
+    if (document.getElementById('tab-utb').classList.contains('active')) renderUtb();
   }, err => console.error('Antrian listener error:', err));
 }
 
@@ -961,7 +1015,7 @@ window.switchTab = function(name) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
 
-  const navMap = { antrian: 'navAntrian', pesanan: 'navPesanan', deposit: 'navDeposit', ringkasan: 'navRingkasan', tagihan: 'navTagihan', qris: 'navQris' };
+  const navMap = { antrian: 'navAntrian', pesanan: 'navPesanan', deposit: 'navDeposit', ringkasan: 'navRingkasan', tagihan: 'navTagihan', utb: 'navUtb', qris: 'navQris' };
   const navEl = document.getElementById(navMap[name]);
   if (navEl) navEl.classList.add('active');
 
@@ -970,6 +1024,7 @@ window.switchTab = function(name) {
   if (name === 'ringkasan') renderSummary();
   if (name === 'tagihan')   renderBuyerList();
   if (name === 'deposit')   renderDeposits();
+  if (name === 'utb')       renderUtb();
   if (name === 'qris')      renderQris();
 };
 
@@ -1351,7 +1406,7 @@ window.addAntrian = async function() {
   btn.textContent = '⏳ Menyimpan...';
   setSyncBadge('loading');
   try {
-    await addDoc(antrianCol, { item, price, qty, note, buyer: '', date: today(), sent: false, createdAt: Date.now() });
+    await addDoc(antrianCol, { item, price, qty, note, buyer: '', date: today(), sent: false, claimedBy: null, createdAt: Date.now() });
     document.getElementById('antrianItem').value  = '';
     document.getElementById('antrianPrice').value = '';
     document.getElementById('antrianQty').value   = '1';
@@ -1440,7 +1495,7 @@ window.submitAntrianBulk = async function() {
   try {
     const now = Date.now();
     await Promise.all(valid.map((r, i) =>
-      addDoc(antrianCol, { item: r.item, price: r.price, qty: 1, note: '', buyer: r.buyer || '', date: today(), sent: !!r.buyer, createdAt: now + i })
+      addDoc(antrianCol, { item: r.item, price: r.price, qty: 1, note: '', buyer: r.buyer || '', date: today(), sent: !!r.buyer, claimedBy: r.buyer || null, createdAt: now + i })
     ));
     // Item yang sudah ada nama langsung juga masuk ke orders
     const withBuyer = valid.filter(r => r.buyer);
@@ -1541,7 +1596,7 @@ function renderAntrian() {
             <div class="antrian-item-name">${a.item || '-'}${a.qty > 1 ? ' <span style="font-size:12px;color:var(--text3)">x' + a.qty + '</span>' : ''}</div>
             ${a.note ? '<div style="font-size:11px;color:var(--text3);margin-top:2px">📝 ' + a.note + '</div>' : ''}
             ${antrianDateMode !== 'today' ? '<div style="font-size:11px;color:var(--text3);margin-top:2px">📅 ' + (a.date || '-') + '</div>' : ''}
-            ${a.sent ? '<div style="font-size:11px;font-weight:700;color:var(--green-dark);margin-top:4px">✓ Terkirim ke: ' + a.buyer + '</div>' : ''}
+            ${a.sent ? '<div style="font-size:11px;font-weight:700;color:var(--green-dark);margin-top:4px">✓ Terkirim ke: ' + a.buyer + '</div>' : (a.claimedBy ? '<div style="font-size:11px;font-weight:700;color:var(--amber);margin-top:4px">🧃 Dipilih di UTB oleh: ' + a.claimedBy + '</div>' : '')}
           </div>
           <div style="display:flex;align-items:center;gap:6px">
             <div class="antrian-item-price">${rupiah((a.price || 0) * (a.qty || 1))}</div>
@@ -1560,6 +1615,132 @@ function renderAntrian() {
 
   list.innerHTML = pending.map(renderItem).join('') +
     (sent.length ? '<div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px">Sudah Terkirim</div>' + sent.map(renderItem).join('') : '');
+}
+
+// ============================================================
+// UTB — self-service ordering publik, sinkron dari Antrian
+// ============================================================
+window.utbSetName = function() {
+  const val = document.getElementById('utbNameInput').value.trim();
+  if (!val) { showToast('Isi nama dulu!', '⚠️'); return; }
+  utbUserName = val;
+  document.getElementById('utbNameInput').value = '';
+  renderUtb();
+};
+
+window.utbChangeName = async function() {
+  // Lepaskan klaim item yang belum di-order agar pengguna lain bisa memilih
+  const mine = antrian.filter(a => !a.sent && a.claimedBy === utbUserName);
+  if (mine.length) {
+    try { await Promise.all(mine.map(a => updateDoc(doc(db, 'antrian', a.firestoreId), { claimedBy: null }))); } catch(e) {}
+  }
+  utbUserName = null;
+  renderUtb();
+};
+
+window.toggleUtbItem = async function(firestoreId, isChecked) {
+  const a = antrian.find(x => x.firestoreId === firestoreId);
+  if (!a || !utbUserName) return;
+
+  if (isChecked) {
+    // Cegah race: kalau ternyata sudah diklaim orang lain, batalkan & refresh
+    if (a.claimedBy && a.claimedBy !== utbUserName) { renderUtb(); return; }
+    try {
+      await updateDoc(doc(db, 'antrian', firestoreId), { claimedBy: utbUserName });
+    } catch(e) {
+      showToast('Gagal pilih item, coba lagi!', '❌');
+      renderUtb();
+    }
+  } else {
+    try {
+      await updateDoc(doc(db, 'antrian', firestoreId), { claimedBy: null });
+    } catch(e) {
+      renderUtb();
+    }
+  }
+};
+
+window.submitUtbOrder = async function() {
+  if (!utbUserName) return;
+  const mySelected = antrian.filter(a => !a.sent && a.claimedBy === utbUserName);
+  if (!mySelected.length) { showToast('Belum ada item dipilih!', '⚠️'); return; }
+
+  setSyncBadge('loading');
+  try {
+    const now = Date.now();
+    await Promise.all(mySelected.map((a, i) =>
+      addDoc(ordersCol, { buyer: utbUserName, item: a.item, price: a.price, qty: a.qty || 1, note: a.note || '', paid: false, date: today(), createdAt: now + i })
+    ));
+    await Promise.all(mySelected.map(a =>
+      updateDoc(doc(db, 'antrian', a.firestoreId), { sent: true, buyer: utbUserName, claimedBy: utbUserName })
+    ));
+    showToast('Pesanan kamu berhasil dikirim! 🎉');
+    setSyncBadge('ok');
+  } catch(e) {
+    showToast('Gagal order, coba lagi!', '❌'); setSyncBadge('err');
+  }
+};
+
+function updateUtbOrderBar() {
+  const bar = document.getElementById('utbOrderBar');
+  if (!bar) return;
+  if (!utbUserName) { bar.style.display = 'none'; return; }
+  const mySelected = antrian.filter(a => !a.sent && a.claimedBy === utbUserName);
+  if (mySelected.length > 0) {
+    bar.style.display = 'block';
+    document.getElementById('utbSelectedCount').textContent = mySelected.length;
+    document.getElementById('utbSelectedTotal').textContent = rupiah(mySelected.reduce((s, a) => s + (a.price || 0) * (a.qty || 1), 0));
+  } else {
+    bar.style.display = 'none';
+  }
+}
+
+function renderUtb() {
+  const namePrompt = document.getElementById('utbNamePrompt');
+  const main       = document.getElementById('utbMain');
+  if (!namePrompt || !main) return;
+
+  if (!utbUserName) {
+    namePrompt.style.display = 'block';
+    main.style.display = 'none';
+    document.getElementById('utbOrderBar').style.display = 'none';
+    return;
+  }
+
+  namePrompt.style.display = 'none';
+  main.style.display = 'block';
+  document.getElementById('utbCurrentName').textContent = utbUserName;
+
+  // Item yang masih tersedia untuk dipilih = belum terkirim ke Pesanan
+  const items = antrian.filter(a => !a.sent).slice().sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+  document.getElementById('utbCount').textContent = items.length + ' item';
+
+  const list = document.getElementById('utbList');
+  if (!items.length) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🧃</div><div class="empty-text">Belum ada item tersedia untuk dipesan</div></div>';
+    updateUtbOrderBar();
+    return;
+  }
+
+  list.innerHTML = items.map(a => {
+    const lockedByOther = a.claimedBy && a.claimedBy !== utbUserName;
+    const checked       = a.claimedBy === utbUserName;
+    return `
+    <div class="utb-item ${checked ? 'checked' : ''} ${lockedByOther ? 'locked' : ''}">
+      <div class="utb-checkbox-wrap">
+        <input type="checkbox" ${checked ? 'checked' : ''} ${lockedByOther ? 'disabled' : ''}
+          onchange="toggleUtbItem('${a.firestoreId}', this.checked)">
+      </div>
+      <div class="utb-item-info">
+        <div class="utb-item-name">${a.item || '-'}${a.qty > 1 ? ' x' + a.qty : ''}</div>
+        ${a.note ? '<div class="utb-item-note">📝 ' + a.note + '</div>' : ''}
+        ${lockedByOther ? '<div class="utb-item-locked-by">🔒 Dipilih oleh ' + a.claimedBy + '</div>' : ''}
+      </div>
+      <div class="utb-item-price">${rupiah((a.price || 0) * (a.qty || 1))}</div>
+    </div>`;
+  }).join('');
+
+  updateUtbOrderBar();
 }
 
 // ============================================================
