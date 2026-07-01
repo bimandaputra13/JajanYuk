@@ -87,11 +87,11 @@
   .order-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; transition: background 0.2s; }
   .order-item.paid { background: var(--green-light); border-color: #86EFAC; }
   .order-item-info { flex: 1; min-width: 0; }
-  .order-item-name { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; }
+  .order-item-name { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .order-item-buyer { font-size: 12px; color: var(--text2); margin-top: 2px; }
   .order-item-details { font-size: 12px; color: var(--text3); margin-top: 2px; }
   .order-item-price { font-size: 15px; font-weight: 700; color: var(--brand); white-space: nowrap; font-family: 'DM Mono', monospace; }
-  .order-item-actions { display: flex; gap: 4px; margin-top: 6px; }
+  .order-item-actions { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
   .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; gap: 3px; }
   .badge-paid { background: var(--green-light); color: var(--green-dark); }
   .badge-unpaid { background: var(--amber-light); color: #92400E; }
@@ -182,8 +182,6 @@
   .filter-row { display: flex; gap: 6px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
   .filter-input { flex: 1; min-width: 120px; padding: 8px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; outline: none; color: var(--text); background: var(--surface); }
   .filter-input:focus { border-color: var(--brand); }
-
-  /* Date filter bar */
   .date-filter-bar { display: flex; gap: 6px; margin-bottom: 14px; align-items: center; flex-wrap: wrap; }
   .date-filter-bar .date-label { font-size: 11px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
   .date-filter-input { padding: 7px 10px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; outline: none; color: var(--text); background: var(--surface); transition: border 0.2s; cursor: pointer; }
@@ -195,23 +193,14 @@
   .filter-section { background: var(--surface2); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px; border: 1px solid var(--border); }
   .filter-section-title { font-size: 11px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
   .active-filter-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; background: var(--brand-light); border: 1px solid #FFB899; border-radius: 20px; font-size: 11px; font-weight: 700; color: var(--brand); margin-left: auto; }
-
-  /* Improved order item */
   .order-item-date { font-size: 11px; color: var(--text3); margin-top: 2px; }
-
-  /* Improved summary period tabs */
   .period-tabs-wrap { position: relative; margin-bottom: 14px; }
-  .period-tabs { display: flex; gap: 4px; background: var(--surface2); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 0; }
   .summary-date-range { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
   .summary-date-range .date-filter-input { flex: 1; font-size: 12px; padding: 6px 10px; }
   .summary-date-range-label { font-size: 11px; color: var(--text3); font-weight: 600; }
-
-  /* Tagihan date filter */
   .tagihan-filter { background: var(--surface2); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px; border: 1px solid var(--border); }
   .tagihan-filter-row { display: flex; gap: 8px; align-items: center; }
   .tagihan-filter-row .date-filter-input { flex: 1; font-size: 12px; padding: 6px 10px; }
-
-  /* Antrian */
   .antrian-item { background: var(--surface); border: 1.5px solid var(--amber-light); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 8px; }
   .antrian-item-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
   .antrian-item-name { font-size: 14px; font-weight: 700; color: var(--text); }
@@ -224,8 +213,6 @@
   .antrian-del-btn { padding: 7px 10px; background: var(--red-light); color: var(--red); border: none; border-radius: var(--radius-sm); font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; }
   .antrian-del-btn:hover { background: var(--red); color: white; }
   .antrian-sent { opacity: 0.45; pointer-events: none; }
-
-  /* Admin / Auth */
   #adminModal { position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9990;display:none;align-items:center;justify-content:center; }
   #adminModal.show { display:flex; }
   .admin-modal-box { background:var(--surface);border-radius:20px;padding:28px 24px;width:90%;max-width:340px;text-align:center;box-shadow:var(--shadow-lg); }
@@ -247,21 +234,15 @@
   .admin-badge.is-user { background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8); }
   .nav-btn.locked { opacity:0.35;cursor:not-allowed;pointer-events:none; }
   .nav-btn.locked::after { content:'🔒';font-size:10px;display:block; }
-
-  /* Loading overlay */
   #loadingOverlay { position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(250,248,245,0.95);z-index:9998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px; }
   #loadingOverlay .load-icon { font-size:48px;animation:pulse 1.2s infinite; }
   #loadingOverlay .load-text { font-size:15px;font-weight:700;color:var(--text2); }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
   .spin { display:inline-block; animation: spin 1s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Sort button */
   .sort-btn { display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:12px;font-weight:700;background:var(--surface);color:var(--text2);cursor:pointer;font-family:inherit;transition:all 0.15s;white-space:nowrap; }
   .sort-btn:hover { border-color:var(--brand);color:var(--brand);background:var(--brand-light); }
   .sort-btn.active { border-color:var(--brand);color:var(--brand);background:var(--brand-light); }
-
-  /* PAID highlight — bright green glow */
   .order-item.paid {
     background: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%) !important;
     border-color: #4ADE80 !important;
@@ -278,16 +259,12 @@
   }
   .order-item.paid .order-item-name { color: #15803D; }
   .order-item.paid .order-item-price { color: #15803D; }
-
-  /* buyer-option paid highlight */
   .buyer-option.all-paid {
     background: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%);
     border-color: #4ADE80;
     box-shadow: 0 0 0 2px rgba(34,197,94,0.2);
   }
   .buyer-option.all-paid .buyer-avatar { background: var(--green-dark) !important; }
-
-  /* summary buyer row paid highlight */
   .summary-buyer-row.all-paid {
     background: linear-gradient(135deg, #DCFCE7, #BBF7D0);
     border-radius: var(--radius-sm);
@@ -295,8 +272,6 @@
     margin: -4px -6px;
     box-shadow: 0 0 0 1.5px rgba(34,197,94,0.35);
   }
-
-  /* ============ UTB TAB ============ */
   .utb-name-card { text-align: center; padding: 28px 20px; }
   .utb-name-icon { font-size: 40px; margin-bottom: 10px; }
   .utb-name-title { font-size: 17px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
@@ -317,6 +292,17 @@
   .utb-item-locked-by { font-size: 11px; font-weight: 700; color: var(--amber); margin-top: 3px; display:flex; align-items:center; gap:4px; }
   .utb-item-price { font-size: 14px; font-weight: 800; color: var(--brand); font-family: 'DM Mono', monospace; white-space: nowrap; }
   .utb-order-bar { position: sticky; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1.5px solid var(--border); padding: 12px 16px; margin: 12px -16px -16px; box-shadow: 0 -4px 16px rgba(0,0,0,0.08); }
+
+  /* Delete by date card */
+  .delete-date-card { background: var(--red-light); border: 1.5px solid #FCA5A5; border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+  .delete-date-card .section-title { color: var(--red); }
+  .delete-date-card .form-row { align-items: flex-end; }
+  .delete-date-card .btn-danger { background: var(--red); color: white; border: none; }
+  .delete-date-card .btn-danger:hover { background: #DC2626; }
+  .delete-date-card .btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Order item highlight for delete mode */
+  .order-item.pending-delete { background: var(--red-light) !important; border-color: #FCA5A5 !important; opacity: 0.6; }
 </style>
 </head>
 <body>
@@ -332,10 +318,9 @@
   <div class="header">
     <div class="header-top">
       <div class="logo">
-	  <div class="logo-icon">🍉</div>
+        <div class="logo-icon">🍉</div>
         <div>
           <div class="logo-text">JajanYuk</div>
-       
         </div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
@@ -445,6 +430,29 @@
 
     <!-- TAB: PESANAN -->
     <div class="tab-panel" id="tab-pesanan">
+      <!-- DELETE BY DATE CARD -->
+      <div class="delete-date-card" id="deleteDateCard">
+	  <div class="section-title" style="margin-bottom:8px;color:var(--red)">🗑️ Hapus Pesanan Berdasarkan Tanggal</div>
+	  <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Hapus semua pesanan dalam rentang tanggal tertentu. Aksi ini tidak bisa dibatalkan!</div>
+	  
+	  <!-- Input tanggal dalam 2 kolom -->
+	  <div class="form-row">
+		<div class="form-group" style="margin-bottom:8px;flex:1">
+		  <label class="form-label">Dari Tanggal</label>
+		  <input type="date" class="form-input" id="deleteDateFrom" style="padding:8px 10px;font-size:13px;width:100%">
+		</div>
+		<div class="form-group" style="margin-bottom:8px;flex:1">
+		  <label class="form-label">Sampai Tanggal</label>
+		  <input type="date" class="form-input" id="deleteDateTo" style="padding:8px 10px;font-size:13px;width:100%">
+		</div>
+	  </div>
+	  
+	  <!-- Tombol Hapus di baris terpisah dengan lebar penuh -->
+	  <button class="btn btn-danger" id="btnDeleteByDate" onclick="deleteOrdersByDate()" style="padding:10px 14px;font-size:13px;width:100%;margin-top:4px">🗑️ Hapus Pesanan</button>
+	  
+	  <div style="font-size:11px;color:var(--text3);margin-top:8px" id="deleteDateInfo">Masukkan rentang tanggal untuk menghapus pesanan</div>
+	</div>
+
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
           <div class="section-title" style="margin-bottom:0">➕ Tambah Pesanan</div>
@@ -663,7 +671,6 @@
 
     <!-- TAB: QRIS -->
     <div class="tab-panel active" id="tab-qris">
-      <!-- elemen dummy agar renderQris() tidak error -->
       <div id="qrisUploadCard" style="display:none"></div>
       <div id="qrisEmptyHint"  style="display:none"></div>
       <div id="qrisNominalList" style="display:none"></div>
@@ -745,7 +752,8 @@ import {
   query,
   orderBy,
   onSnapshot,
-  serverTimestamp
+  serverTimestamp,
+  where
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 // ============================================================
@@ -766,10 +774,6 @@ const db = getFirestore(app);
 
 // ============================================================
 // COLLECTIONS
-// Struktur Firestore:
-//   /orders/{orderId}   — dokumen pesanan
-//   /deposits/{depId}   — dokumen deposit
-//   /settings/qris      — dokumen QRIS (field: imageBase64)
 // ============================================================
 const ordersCol   = collection(db, 'orders');
 const depositsCol = collection(db, 'deposits');
@@ -792,12 +796,12 @@ let pesananDateMode  = 'today';
 let tagihanDateMode  = 'today';
 
 // Sort state
-let pesananSortMode  = 'asc';   // 'asc' | 'desc' | 'default'
+let pesananSortMode  = 'asc';
 let tagihanSortMode  = 'asc';
-let tagihanSortField = 'name'; // 'name' | 'total' | 'unpaid' | 'count'
+let tagihanSortField = 'name';
 let ringSortMode     = 'asc';
 
-// UTB state (in-memory only, tidak pakai browser storage)
+// UTB state
 let utbUserName = null;
 
 // ============================================================
@@ -903,7 +907,6 @@ function getDateOffset(daysAgo) {
 }
 
 function getFilterDates(mode, fromId, toId) {
-  // Returns {from, to} strings in YYYY-MM-DD, or null for 'all'
   const t = today();
   if (mode === 'today')     return { from: t, to: t };
   if (mode === 'yesterday') { const y = getDateOffset(1); return { from: y, to: y }; }
@@ -972,38 +975,48 @@ function updateHeaderDate() {
   const d = new Date();
   document.getElementById('headerDate').textContent =
     d.toLocaleDateString('id-ID', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
-  // Tampilkan tanggal yang dipakai untuk filter pesanan
   const dbgEl = document.getElementById('todayDebug');
   if (dbgEl) dbgEl.textContent = '(' + today() + ')';
 }
 updateHeaderDate();
 
 // ============================================================
-// REALTIME LISTENERS — data otomatis update dari Firestore
+// REALTIME LISTENERS (lazy: hanya start saat tab terkait dibuka)
 // ============================================================
-function startListeners() {
-  // Orders — listen realtime
+let ordersListenerStarted = false;
+let depositsListenerStarted = false;
+let antrianListenerStarted = false;
+
+function startOrdersListener() {
+  if (ordersListenerStarted) return;
+  ordersListenerStarted = true;
   onSnapshot(query(ordersCol, orderBy('createdAt', 'asc')), snap => {
     orders = snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
     renderOrders();
-    renderDeposits(); // refresh saldo deposit setiap ada perubahan pesanan
+    renderDeposits();
     setSyncBadge('ok');
+    updateDeleteDateInfo();
   }, err => {
     console.error('Orders listener error:', err);
     setSyncBadge('err');
   });
+}
 
-  // Deposits — listen realtime
+function startDepositsListener() {
+  if (depositsListenerStarted) return;
+  depositsListenerStarted = true;
   onSnapshot(query(depositsCol, orderBy('createdAt', 'asc')), snap => {
     deposits = snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
     renderDeposits();
   }, err => console.error('Deposits listener error:', err));
+}
 
-  // Antrian — listen realtime
+function startAntrianListener() {
+  if (antrianListenerStarted) return;
+  antrianListenerStarted = true;
   onSnapshot(query(antrianCol, orderBy('createdAt', 'asc')), snap => {
     antrian = snap.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
     renderAntrian();
-    // UTB ikut sinkron realtime dengan data antrian
     if (document.getElementById('tab-utb').classList.contains('active')) renderUtb();
   }, err => console.error('Antrian listener error:', err));
 }
@@ -1012,7 +1025,6 @@ function startListeners() {
 // TAB SWITCHING
 // ============================================================
 window.switchTab = function(name) {
-  // Guard: non-admin cannot switch to locked tabs
   const adminOnlyTabs = ['antrian', 'pesanan', 'deposit', 'ringkasan', 'tagihan'];
   if (!isAdmin && adminOnlyTabs.includes(name)) {
     showToast('Login sebagai Admin untuk akses tab ini', '🔒');
@@ -1030,14 +1042,100 @@ window.switchTab = function(name) {
     navEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
   }
 
-  if (name === 'antrian')   renderAntrian();
-  if (name === 'pesanan')   window.renderOrders();
-  if (name === 'ringkasan') renderSummary();
-  if (name === 'tagihan')   renderBuyerList();
-  if (name === 'deposit')   renderDeposits();
-  if (name === 'utb')       renderUtb();
+  // Load data on-demand: hanya start listener Firestore untuk tab yang baru dibuka
+  if (name === 'antrian')   { startAntrianListener(); renderAntrian(); }
+  if (name === 'pesanan')   { startOrdersListener(); startDepositsListener(); window.renderOrders(); }
+  if (name === 'ringkasan') { startOrdersListener(); renderSummary(); }
+  if (name === 'tagihan')   { startOrdersListener(); renderBuyerList(); }
+  if (name === 'deposit')   { startDepositsListener(); startOrdersListener(); renderDeposits(); }
+  if (name === 'utb')       { startAntrianListener(); renderUtb(); }
   if (name === 'qris')      renderQris();
 };
+
+// ============================================================
+// DELETE ORDERS BY DATE
+// ============================================================
+window.deleteOrdersByDate = async function() {
+  const from = document.getElementById('deleteDateFrom').value;
+  const to = document.getElementById('deleteDateTo').value;
+
+  if (!from || !to) {
+    showToast('Pilih rentang tanggal terlebih dahulu!', '⚠️');
+    return;
+  }
+
+  if (from > to) {
+    showToast('Tanggal "Dari" harus lebih awal dari "Sampai"', '⚠️');
+    return;
+  }
+
+  // Count orders in range
+  const toDelete = orders.filter(o => o.date >= from && o.date <= to);
+  if (!toDelete.length) {
+    showToast(`Tidak ada pesanan dari ${from} sampai ${to}`, 'ℹ️');
+    return;
+  }
+
+  const totalAmount = toDelete.reduce((s, o) => s + (o.price || 0) * (o.qty || 1), 0);
+  const confirmMsg =
+    `⚠️ PERINGATAN!\n\n` +
+    `Anda akan menghapus ${toDelete.length} pesanan\n` +
+    `dari ${from} sampai ${to}\n` +
+    `Total nominal: ${rupiah(totalAmount)}\n\n` +
+    `Aksi ini TIDAK BISA DIBATALKAN!\n\n` +
+    `Ketik "HAPUS" untuk konfirmasi.`;
+
+  const userInput = prompt(confirmMsg);
+  if (userInput !== 'HAPUS') {
+    showToast('Penghapusan dibatalkan', 'ℹ️');
+    return;
+  }
+
+  const btn = document.getElementById('btnDeleteByDate');
+  btn.disabled = true;
+  btn.textContent = '⏳ Menghapus...';
+  setSyncBadge('loading');
+
+  try {
+    // Delete all orders in range
+    await Promise.all(toDelete.map(o => deleteDoc(doc(db, 'orders', o.firestoreId))));
+    showToast(`✅ ${toDelete.length} pesanan berhasil dihapus!`, '🗑️');
+    setSyncBadge('ok');
+    updateDeleteDateInfo();
+  } catch(e) {
+    console.error('Delete error:', e);
+    showToast('Gagal menghapus pesanan!', '❌');
+    setSyncBadge('err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🗑️ Hapus';
+  }
+};
+
+function updateDeleteDateInfo() {
+  const from = document.getElementById('deleteDateFrom')?.value;
+  const to = document.getElementById('deleteDateTo')?.value;
+  const info = document.getElementById('deleteDateInfo');
+  if (!info) return;
+
+  if (!from || !to) {
+    info.textContent = 'Masukkan rentang tanggal untuk menghapus pesanan';
+    info.style.color = 'var(--text3)';
+    return;
+  }
+
+  const count = orders.filter(o => o.date >= from && o.date <= to).length;
+  const total = orders.filter(o => o.date >= from && o.date <= to)
+    .reduce((s, o) => s + (o.price || 0) * (o.qty || 1), 0);
+
+  if (count === 0) {
+    info.textContent = `📭 Tidak ada pesanan dari ${from} sampai ${to}`;
+    info.style.color = 'var(--text3)';
+  } else {
+    info.innerHTML = `📋 <strong>${count}</strong> pesanan ditemukan · Total <strong>${rupiah(total)}</strong> · ${count > 0 ? '⚠️ Siap dihapus?' : ''}`;
+    info.style.color = count > 0 ? 'var(--red)' : 'var(--text3)';
+  }
+}
 
 // ============================================================
 // PESANAN — CRUD
@@ -1096,7 +1194,6 @@ window.togglePaid = async function(firestoreId) {
   const o = orders.find(o => o.firestoreId === firestoreId);
   if (!o) return;
 
-  // Jika sedang MEMBATALKAN lunas (sudah paid -> unpaid)
   if (o.paid) {
     setSyncBadge('loading');
     try {
@@ -1120,7 +1217,6 @@ window.togglePaid = async function(firestoreId) {
     return;
   }
 
-  // Cek apakah pembeli punya deposit AKTIF (sisa > 0)
   const buyerName     = (o.buyer || '').toLowerCase();
   const buyerDeposits = deposits.filter(d => d.name && d.name.toLowerCase() === buyerName);
   const itemTotal     = (o.price || 0) * (o.qty || 1);
@@ -1147,7 +1243,6 @@ window.togglePaid = async function(firestoreId) {
           );
           if (!lanjut) { setSyncBadge('ok'); return; }
         }
-        // Potong usedAmount secara FIFO (entri deposit paling lama dipotong dulu)
         let sisa = itemTotal;
         const sortedDeps = buyerDeposits
           .filter(d => getDepositSisaById(d) > 0)
@@ -1169,13 +1264,13 @@ window.togglePaid = async function(firestoreId) {
         return;
       }
     }
-    // Bayar manual biasa
     await updateDoc(doc(db, 'orders', firestoreId), { paid: true, paidViaDeposit: false });
     showToast('Ditandai sudah bayar ✓');
   } catch(e) {
     showToast('Gagal update!', '❌'); setSyncBadge('err');
   }
 };
+
 window.togglePesananSort = function() {
   pesananSortMode = pesananSortMode === 'asc' ? 'desc' : 'asc';
   const btn = document.getElementById('pesananSortBtn');
@@ -1226,22 +1321,18 @@ window.renderOrders = function renderOrders() {
   const filterBuyer    = filterBuyerEl  ? filterBuyerEl.value.toLowerCase().trim() : '';
   const filterStatus   = filterStatusEl ? filterStatusEl.value : '';
 
-  // Apply date filter
   const dateRange = getFilterDates(pesananDateMode, 'pesananDateFrom', 'pesananDateTo');
   let filtered = filterByDateRange(orders, dateRange);
 
-  // Terapkan search: cocokkan nama pembeli saja
   if (filterBuyer) {
     filtered = filtered.filter(o =>
       (o.buyer || '').toLowerCase().includes(filterBuyer)
     );
   }
 
-  // Terapkan filter status
   if (filterStatus === 'paid')   filtered = filtered.filter(o => o.paid);
   if (filterStatus === 'unpaid') filtered = filtered.filter(o => !o.paid);
 
-  // Sort by buyer name ASC/DESC, then by date
   filtered = filtered.slice().sort((a, b) => {
     const na = (a.buyer || '').toLowerCase();
     const nb = (b.buyer || '').toLowerCase();
@@ -1249,10 +1340,8 @@ window.renderOrders = function renderOrders() {
     return (b.createdAt || 0) - (a.createdAt || 0);
   });
 
-  // Update counter
   document.getElementById('orderCount').textContent = filtered.length + ' item';
 
-  // Update badge
   const badge = document.getElementById('pesananFilterBadge');
   if (badge) badge.style.display = (pesananDateMode !== 'today' || filterBuyer || filterStatus) ? 'inline-flex' : 'none';
 
@@ -1268,19 +1357,24 @@ window.renderOrders = function renderOrders() {
   }
 
   list.innerHTML = filtered.map(o => {
-    // Cek apakah pembeli punya deposit (untuk badge indikator)
     const hasDep = deposits.some(d => d.name && d.name.toLowerCase() === (o.buyer || '').toLowerCase());
     const depBadge = o.paidViaDeposit
       ? `<span class="badge badge-deposit">💰 Deposit</span>`
       : (hasDep && !o.paid ? `<span class="badge badge-deposit-used" title="Punya deposit">💳</span>` : '');
 
+    // Check if this order is in the current delete range
+    const deleteFrom = document.getElementById('deleteDateFrom')?.value;
+    const deleteTo = document.getElementById('deleteDateTo')?.value;
+    const inDeleteRange = deleteFrom && deleteTo && o.date >= deleteFrom && o.date <= deleteTo;
+
     return `
-    <div class="order-item ${o.paid ? 'paid' : ''}">
+    <div class="order-item ${o.paid ? 'paid' : ''} ${inDeleteRange ? 'pending-delete' : ''}">
       <div class="order-item-info">
         <div class="order-item-name">
           ${o.item || '-'}
           <span class="badge ${o.paid ? 'badge-paid' : 'badge-unpaid'}">${o.paid ? '✓ Lunas' : '⏳ Belum'}</span>
           ${depBadge}
+          ${inDeleteRange ? '<span class="badge" style="background:var(--red-light);color:var(--red);border:1px solid #FCA5A5">🗑️ Akan Dihapus</span>' : ''}
         </div>
         <div class="order-item-buyer">👤 ${o.buyer || '-'}${o.qty > 1 ? ' · x' + o.qty : ''}</div>
         ${o.note ? '<div class="order-item-details">📝 ' + o.note + '</div>' : ''}
@@ -1295,10 +1389,12 @@ window.renderOrders = function renderOrders() {
       <div class="order-item-price">${rupiah((o.price || 0) * (o.qty || 1))}</div>
     </div>`;
   }).join('');
+
+  updateDeleteDateInfo();
 }
 
 // ============================================================
-// INPUT MODE (Manual / Bulk)
+// INPUT MODE
 // ============================================================
 window.setInputMode = function(mode) {
   const isManual = mode === 'manual';
@@ -1370,7 +1466,6 @@ window.submitBulk = async function() {
 
   try {
     const now = Date.now();
-    // Batch add dengan Promise.all
     await Promise.all(valid.map((r, i) =>
       addDoc(ordersCol, {
         buyer: r.buyer, item: r.item, price: r.price, qty: 1, note: '',
@@ -1440,22 +1535,17 @@ function parseAntrianBulkLine(line) {
 
   let item, priceRaw, buyer = '';
   if (parts.length === 2) {
-    // Item - Harga (tanpa nama)
     item     = parts[0].trim();
     priceRaw = parts[1].trim();
   } else {
-    // Item - Harga - Nama  atau  Item - sub - Harga - Nama
-    // Cek apakah bagian terakhir adalah angka atau bukan
     const lastPart       = parts[parts.length - 1].trim();
     const secondLastPart = parts[parts.length - 2].trim();
     const secondLastNum  = parseFloat(secondLastPart.replace(/[Rp\s\.]/g, '').replace(',', '.'));
     if (!isNaN(secondLastNum) && secondLastNum > 0) {
-      // terakhir = nama pembeli
       buyer    = lastPart;
       priceRaw = secondLastPart;
       item     = parts.slice(0, parts.length - 2).join(' - ').trim();
     } else {
-      // tidak ada nama, bagian terakhir = harga
       priceRaw = lastPart;
       item     = parts.slice(0, parts.length - 1).join(' - ').trim();
     }
@@ -1508,7 +1598,6 @@ window.submitAntrianBulk = async function() {
     await Promise.all(valid.map((r, i) =>
       addDoc(antrianCol, { item: r.item, price: r.price, qty: 1, note: '', buyer: r.buyer || '', date: today(), sent: !!r.buyer, claimedBy: r.buyer || null, createdAt: now + i })
     ));
-    // Item yang sudah ada nama langsung juga masuk ke orders
     const withBuyer = valid.filter(r => r.buyer);
     if (withBuyer.length) {
       await Promise.all(withBuyer.map((r, i) =>
@@ -1527,7 +1616,6 @@ window.submitAntrianBulk = async function() {
   }
 };
 
-// Kirim satu antrian item ke Pesanan dengan nama pembeli yang diisi
 window.sendAntrianToOrder = async function(firestoreId) {
   const inputEl = document.getElementById('antrianBuyerInput-' + firestoreId);
   const buyer   = inputEl ? inputEl.value.trim() : '';
@@ -1538,9 +1626,7 @@ window.sendAntrianToOrder = async function(firestoreId) {
 
   setSyncBadge('loading');
   try {
-    // Tambah ke orders
     await addDoc(ordersCol, { buyer, item: a.item, price: a.price, qty: a.qty || 1, note: a.note || '', paid: false, date: today(), createdAt: Date.now() });
-    // Tandai antrian sebagai sent + simpan nama buyer
     await updateDoc(doc(db, 'antrian', firestoreId), { sent: true, buyer });
     showToast(a.item + ' -> ' + buyer + ' dikirim ke Pesanan! ✓');
     setSyncBadge('ok');
@@ -1581,7 +1667,6 @@ function renderAntrian() {
   const clearBtn  = document.getElementById('btnClearAntrian');
   if (!list) return;
 
-  // Apply date filter
   const dateRange = getFilterDates(antrianDateMode, 'antrianDateFrom', 'antrianDateTo');
   const filtered  = filterByDateRange(antrian, dateRange);
 
@@ -1629,7 +1714,7 @@ function renderAntrian() {
 }
 
 // ============================================================
-// UTB — self-service ordering publik, sinkron dari Antrian
+// UTB
 // ============================================================
 window.utbSetName = function() {
   const val = document.getElementById('utbNameInput').value.trim();
@@ -1640,7 +1725,6 @@ window.utbSetName = function() {
 };
 
 window.utbChangeName = async function() {
-  // Lepaskan klaim item yang belum di-order agar pengguna lain bisa memilih
   const mine = antrian.filter(a => !a.sent && a.claimedBy === utbUserName);
   if (mine.length) {
     try { await Promise.all(mine.map(a => updateDoc(doc(db, 'antrian', a.firestoreId), { claimedBy: null }))); } catch(e) {}
@@ -1654,7 +1738,6 @@ window.toggleUtbItem = async function(firestoreId, isChecked) {
   if (!a || !utbUserName) return;
 
   if (isChecked) {
-    // Cegah race: kalau ternyata sudah diklaim orang lain, batalkan & refresh
     if (a.claimedBy && a.claimedBy !== utbUserName) { renderUtb(); return; }
     try {
       await updateDoc(doc(db, 'antrian', firestoreId), { claimedBy: utbUserName });
@@ -1722,7 +1805,6 @@ function renderUtb() {
   main.style.display = 'block';
   document.getElementById('utbCurrentName').textContent = utbUserName;
 
-  // Item yang masih tersedia untuk dipilih = belum terkirim ke Pesanan
   const items = antrian.filter(a => !a.sent).slice().sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
   document.getElementById('utbCount').textContent = items.length + ' item';
 
@@ -1755,7 +1837,7 @@ function renderUtb() {
 }
 
 // ============================================================
-// DEPOSIT — CRUD
+// DEPOSIT
 // ============================================================
 window.addDeposit = async function() {
   const name   = document.getElementById('depName').value.trim();
@@ -1770,7 +1852,6 @@ window.addDeposit = async function() {
   setSyncBadge('loading');
 
   try {
-    // Simpan deposit baru dengan field usedAmount = 0 (sisa dikelola per-entri)
     await addDoc(depositsCol, {
       name,
       amount,
@@ -1804,15 +1885,12 @@ window.deleteDeposit = async function(firestoreId) {
   }
 };
 
-// Hitung sisa saldo deposit PER ENTRI (bukan per nama) menggunakan field usedAmount
-// Jika field usedAmount belum ada (deposit lama), fallback ke hitung dari orders
 function getDepositSisaById(d) {
   const used = (typeof d.usedAmount === 'number') ? d.usedAmount : getDepositUsedByName(d.name);
   return Math.max(0, (d.amount || 0) - used);
 }
 
 function getDepositUsedByName(name) {
-  // Fallback untuk deposit lama yang belum punya field usedAmount
   return orders
     .filter(o => o.buyer && o.buyer.toLowerCase() === name.toLowerCase() && o.paid && o.paidViaDeposit)
     .reduce((s, o) => s + (o.price || 0) * (o.qty || 1), 0);
@@ -1824,7 +1902,6 @@ function getDepositTotalByName(name) {
     .reduce((s, d) => s + (d.amount || 0), 0);
 }
 
-// Auto-hapus deposit yang sudah habis (sisa = 0) setelah transaksi
 async function autoCleanDepletedDeposits() {
   const depleted = deposits.filter(d => getDepositSisaById(d) <= 0);
   if (!depleted.length) return;
@@ -1836,14 +1913,13 @@ async function autoCleanDepletedDeposits() {
       showToast(`${depleted.length} deposit habis & otomatis dihapus 🗑️`);
     }
   } catch(e) {
-    // silent fail — jangan ganggu flow utama
+    // silent
   }
 }
 
 function renderDeposits() {
   const list = document.getElementById('depositList');
 
-  // Hanya tampilkan deposit yang masih punya saldo (sisa > 0)
   const activeDeposits = deposits.filter(d => getDepositSisaById(d) > 0);
   const allDeposits    = deposits.slice().sort((a, b) => b.createdAt - a.createdAt);
 
@@ -1865,7 +1941,6 @@ function renderDeposits() {
     return;
   }
 
-  // Pisah: aktif (sisa > 0) dan habis (sisa = 0) — habis masih ditampilkan tapi dengan tombol hapus
   const activeList   = allDeposits.filter(d => getDepositSisaById(d) > 0);
   const depletedList = allDeposits.filter(d => getDepositSisaById(d) <= 0);
 
@@ -1911,7 +1986,6 @@ function renderDeposits() {
   if (depletedList.length) {
     html += `<div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px">🔴 Habis (${depletedList.length}) — segera dihapus</div>`;
     html += depletedList.map(renderItem).join('');
-    // Auto-clean depleted entries dari Firestore
     autoCleanDepletedDeposits();
   }
 
@@ -2039,7 +2113,6 @@ function renderSummary() {
       </div>
       <div id="ringBuyerRows">
       ${(() => {
-        // read filter & sort each render
         const search = document.getElementById('filterRingBuyer') ? document.getElementById('filterRingBuyer').value.toLowerCase().trim() : '';
         let entries = Object.entries(buyerBreakdown);
         if (search) entries = entries.filter(([n]) => n.toLowerCase().includes(search));
@@ -2068,7 +2141,6 @@ function renderSummary() {
 // TAGIHAN
 // ============================================================
 window.renderBuyerList = function() {
-  // Apply tagihan date filter
   const dateRange    = getFilterDates(tagihanDateMode, 'tagihanDateFrom', 'tagihanDateTo');
   const todayOrders  = filterByDateRange(orders, dateRange);
   const buyers       = {};
@@ -2079,7 +2151,6 @@ window.renderBuyerList = function() {
     if (!o.paid) buyers[o.buyer].unpaid += o.price * o.qty;
   });
 
-  // Update filter badge
   const badge = document.getElementById('tagihanFilterBadge');
   if (badge) badge.style.display = tagihanDateMode !== 'today' ? 'inline-flex' : 'none';
 
@@ -2112,7 +2183,6 @@ window.renderBuyerList = function() {
     return;
   }
 
-  // Name filter for tagihan
   const tagihanSearchEl = document.getElementById('filterTagihanBuyer');
   const tagihanSearch = tagihanSearchEl ? tagihanSearchEl.value.toLowerCase().trim() : '';
 
@@ -2121,7 +2191,6 @@ window.renderBuyerList = function() {
     buyerEntries = buyerEntries.filter(([name]) => name.toLowerCase().includes(tagihanSearch));
   }
 
-  // Sort by selected field
   buyerEntries = buyerEntries.sort((a, b) => {
     let valA, valB;
     if (tagihanSortField === 'total') {
@@ -2148,7 +2217,6 @@ window.renderBuyerList = function() {
   buyerDiv.innerHTML = `<div class="buyer-select">` +
     buyerEntries.map(([name, d]) => {
       const isAllPaid = d.unpaid === 0;
-      // Cek deposit
       const depTotal = getDepositTotalByName(name);
       const depUsed  = getDepositUsedByName(name);
       const depSisa  = depTotal - depUsed;
@@ -2228,7 +2296,6 @@ function buildAllUnpaidText() {
 
   let text = `🍉 *JAJANYUK — REKAP PESANAN*\n📅 ${dateStr}, ${timeStr}\n━━━━━━━━━━━━━━━━━━━\n`;
 
-  // Sort labels for header
   const sortLabels = { name: 'Nama (A-Z)', total: 'Total Tagihan', unpaid: 'Belum Bayar', count: 'Jml Item' };
   const sortDir    = tagihanSortMode === 'asc' ? '↑ Terkecil->Terbesar' : '↓ Terbesar->Terkecil';
   const sortLabel  = tagihanSortField === 'name'
@@ -2236,7 +2303,6 @@ function buildAllUnpaidText() {
     : `${sortLabels[tagihanSortField] || ''} ${sortDir}`;
   text += `📊 Urutan: ${sortLabel}\n━━━━━━━━━━━━━━━━━━━\n`;
 
-  // Build buyer map with totals
   const buyerMap = {};
   buyers.forEach(name => {
     const bOrders = todayUnpaid.filter(o => o.buyer === name);
@@ -2248,7 +2314,6 @@ function buildAllUnpaidText() {
     };
   });
 
-  // Sort buyers
   const sortedBuyers = Object.keys(buyerMap).sort((a, b) => {
     if (tagihanSortField === 'total' || tagihanSortField === 'unpaid') {
       return tagihanSortMode === 'asc'
@@ -2329,7 +2394,7 @@ window.shareBill = function(text) {
 };
 
 // ============================================================
-// QRIS — disimpan ke Firestore doc: settings/qris
+// QRIS
 // ============================================================
 function renderQris() {
   getDoc(doc(db, 'settings', 'qris')).then(snap => {
@@ -2427,20 +2492,25 @@ document.getElementById('qrisOverlay').addEventListener('click', function(e) {
 // ============================================================
 // INIT
 // ============================================================
-applyAdminAccess(); // apply lock state on load
-startListeners();
-renderQris(); // render QRIS tab on load (default tab)
+applyAdminAccess();
+renderQris();
 
-// Filter listeners — pakai addEventListener bukan oninput/onchange inline
-// agar bisa memanggil fungsi dalam ES Module scope
+// Set default tanggal untuk delete date ke hari ini
+document.getElementById('deleteDateFrom').value = today();
+document.getElementById('deleteDateTo').value = today();
+updateDeleteDateInfo();
+
+// Filter listeners
 document.getElementById('filterBuyer').addEventListener('input', () => window.renderOrders());
 document.getElementById('filterStatus').addEventListener('change', () => window.renderOrders());
 
-// Tagihan buyer filter listener
 const filterTagihanBuyerEl = document.getElementById('filterTagihanBuyer');
 if (filterTagihanBuyerEl) filterTagihanBuyerEl.addEventListener('input', () => window.renderBuyerList());
 
-// Sembunyikan loading overlay setelah listeners terpasang
+// Delete date listeners untuk update info
+document.getElementById('deleteDateFrom').addEventListener('change', updateDeleteDateInfo);
+document.getElementById('deleteDateTo').addEventListener('change', updateDeleteDateInfo);
+
 setTimeout(() => {
   document.getElementById('loadingOverlay').style.display = 'none';
 }, 1500);
